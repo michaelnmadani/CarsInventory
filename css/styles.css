@@ -453,7 +453,7 @@ input[type="color"] {
 .dashboard-bg {
   position: relative;
   min-height: calc(100vh - var(--navbar-h));
-  background: url('../images/dashboard-bg.jpg') center/cover no-repeat fixed;
+  background: url('https://wallpapers.com/images/high/iphone-x-cars-background-1125-x-2436-rwoydzccz8gbcina.webp') center/cover no-repeat fixed;
   background-color: var(--color-secondary);
 }
 .dashboard-overlay {
