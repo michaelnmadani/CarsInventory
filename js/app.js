@@ -2,7 +2,7 @@ import { isLoggedIn, getAuth, clearAuth } from './auth.js';
 import { onRoute, initRouter, navigate } from './router.js';
 import { getAllCharacters, getCharacter, saveCharacter, deleteCharacter, slugify, resolveImage, resolveGallery } from './store.js';
 import { searchCars } from './search.js';
-import { getCarCount, updateCarCount, getStats } from './tracker.js';
+import { getCarCount, getCarItems, addCarItem, removeCarItem, updateItemPhoto, getStats } from './tracker.js';
 import { compressImage, blobExtension } from './imageUtils.js';
 import { uploadImage, listImages, deleteImage as deleteRemoteImage, isSupabaseReady } from './supabase.js';
 
@@ -84,25 +84,120 @@ function movieTagsHTML(movies) {
 
 function trackerHTML(id, type, count) {
   return `<div class="tracker-controls">
-    <button class="btn-icon btn-icon-sub" data-track="${id}" data-type="${type}" data-delta="-1">&minus;</button>
     <span class="tracker-count ${count > 0 ? 'has-items' : ''}">${count}</span>
-    <button class="btn-icon btn-icon-add" data-track="${id}" data-type="${type}" data-delta="1">+</button>
+    <button class="btn-icon btn-icon-add" data-add-car="${id}" data-add-type="${type}">+</button>
   </div>`;
 }
 
 function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
 
-function wireTrackerButtons(el) {
-  el.querySelectorAll('[data-track]').forEach(btn => {
+function wireAddCarButtons(el) {
+  el.querySelectorAll('[data-add-car]').forEach(btn => {
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
-      const { track, type, delta } = btn.dataset;
-      updateCarCount(track, type, parseInt(delta));
-      // re-render view
-      const hash = window.location.hash.slice(1) || '/dashboard';
-      window.dispatchEvent(new HashChangeEvent('hashchange'));
+      const charId = btn.dataset.addCar;
+      const type   = btn.dataset.addType;
+      openAddItemModal(charId, type);
     });
   });
+}
+
+// ── Add Item Modal ────────────────────────────────────────────
+function openAddItemModal(charId, type) {
+  const existing = document.getElementById('addItemModal');
+  if (existing) existing.remove();
+
+  const typeLabel = type === 'large' ? 'Large' : 'Mini';
+  const modal = document.createElement('div');
+  modal.className = 'modal-overlay';
+  modal.id = 'addItemModal';
+  modal.innerHTML = `
+    <div class="modal-card">
+      <h3>Add ${typeLabel} Die-cast</h3>
+      <div class="form-group">
+        <label for="itemName">Name *</label>
+        <input class="form-control" id="itemName" type="text" placeholder="e.g. Birthday McQueen" required autofocus>
+      </div>
+      <div class="modal-photo-row">
+        <span class="text-muted" style="font-size:0.85rem">Want to add a photo?</span>
+        <div class="flex-gap">
+          <button type="button" class="btn btn-sm btn-primary" id="modalUploadBtn">${uploadIconSVG} Upload</button>
+          <button type="button" class="btn btn-sm btn-accent" id="modalCameraBtn">${cameraIconSVG} Camera</button>
+        </div>
+        <input type="file" accept="image/*" id="modalFileInput" hidden>
+        <input type="file" accept="image/*" capture="environment" id="modalCameraInput" hidden>
+      </div>
+      <div id="modalPhotoPreview" class="modal-photo-preview" style="display:none">
+        <img id="modalPreviewImg" src="" alt="Preview">
+        <button type="button" class="btn btn-sm btn-ghost" id="modalRemovePhoto">Remove</button>
+      </div>
+      <div class="form-actions" style="border:none;padding-top:16px;margin-top:8px">
+        <button type="button" class="btn btn-ghost" id="modalCancel">Cancel</button>
+        <button type="button" class="btn btn-primary" id="modalSave">Add to Collection</button>
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+
+  let selectedFile = null;
+
+  const nameInput     = document.getElementById('itemName');
+  const fileInput     = document.getElementById('modalFileInput');
+  const cameraInput   = document.getElementById('modalCameraInput');
+  const previewWrap   = document.getElementById('modalPhotoPreview');
+  const previewImg    = document.getElementById('modalPreviewImg');
+
+  document.getElementById('modalUploadBtn').addEventListener('click', () => fileInput.click());
+  document.getElementById('modalCameraBtn').addEventListener('click', () => cameraInput.click());
+
+  function onFile(file) {
+    selectedFile = file;
+    previewImg.src = URL.createObjectURL(file);
+    previewWrap.style.display = 'flex';
+  }
+
+  fileInput.addEventListener('change', () => { if (fileInput.files[0]) onFile(fileInput.files[0]); });
+  cameraInput.addEventListener('change', () => { if (cameraInput.files[0]) onFile(cameraInput.files[0]); });
+
+  document.getElementById('modalRemovePhoto').addEventListener('click', () => {
+    selectedFile = null;
+    previewWrap.style.display = 'none';
+    previewImg.src = '';
+  });
+
+  document.getElementById('modalCancel').addEventListener('click', closeAddItemModal);
+  modal.addEventListener('click', (e) => { if (e.target === modal) closeAddItemModal(); });
+
+  document.getElementById('modalSave').addEventListener('click', async () => {
+    const name = nameInput.value.trim();
+    if (!name) { nameInput.focus(); nameInput.style.borderColor = 'var(--color-danger)'; return; }
+
+    let photoUrl = '';
+    if (selectedFile) {
+      photoUrl = await handlePhotoUpload(selectedFile, charId);
+      if (photoUrl) {
+        // Also add to character gallery
+        const char = getCharacter(charId);
+        if (char) {
+          if (!char.images) char.images = [];
+          char.images.push(photoUrl);
+          saveCharacter(char);
+        }
+      }
+    }
+
+    addCarItem(charId, name, type, photoUrl);
+    closeAddItemModal();
+    window.dispatchEvent(new HashChangeEvent('hashchange'));
+  });
+
+  // Enter key to save
+  nameInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') document.getElementById('modalSave').click();
+  });
+}
+
+function closeAddItemModal() {
+  document.getElementById('addItemModal')?.remove();
 }
 
 function sortCars(cars) {
@@ -339,7 +434,7 @@ function renderDatabase(appEl) {
     el.addEventListener('click', () => navigate(`#/bio/${el.dataset.nav}`));
   });
 
-  wireTrackerButtons(appEl);
+  wireAddCarButtons(appEl);
 }
 
 // ── Bio View ──────────────────────────────────────────────────
@@ -386,18 +481,16 @@ async function renderBio(appEl, id) {
             <h4>My Collection</h4>
             <div class="bio-tracker-row">
               <span class="bio-tracker-label">Large Die-cast</span>
-              <div class="bio-tracker-controls">
-                <button class="btn-icon btn-icon-sub" data-track="${esc(char.id)}" data-type="large" data-delta="-1">&minus;</button>
-                <span class="bio-tracker-count">${cnt.large}</span>
-                <button class="btn-icon btn-icon-add" data-track="${esc(char.id)}" data-type="large" data-delta="1">+</button>
+              <div class="tracker-controls">
+                <span class="tracker-count ${cnt.large > 0 ? 'has-items' : ''}">${cnt.large}</span>
+                <button class="btn-icon btn-icon-add" data-add-car="${esc(char.id)}" data-add-type="large">+</button>
               </div>
             </div>
             <div class="bio-tracker-row">
               <span class="bio-tracker-label">Mini Die-cast</span>
-              <div class="bio-tracker-controls">
-                <button class="btn-icon btn-icon-sub" data-track="${esc(char.id)}" data-type="mini" data-delta="-1">&minus;</button>
-                <span class="bio-tracker-count">${cnt.mini}</span>
-                <button class="btn-icon btn-icon-add" data-track="${esc(char.id)}" data-type="mini" data-delta="1">+</button>
+              <div class="tracker-controls">
+                <span class="tracker-count ${cnt.mini > 0 ? 'has-items' : ''}">${cnt.mini}</span>
+                <button class="btn-icon btn-icon-add" data-add-car="${esc(char.id)}" data-add-type="mini">+</button>
               </div>
             </div>
           </div>
@@ -456,9 +549,56 @@ async function renderBio(appEl, id) {
           ${char.quotes.map(q => `<div class="quote-item">${esc(q)}</div>`).join('')}
         </div>
       </div>` : ''}
+
+      ${(() => {
+        const items = getCarItems(char.id);
+        const largeItems = items.filter(i => i.type === 'large');
+        const miniItems  = items.filter(i => i.type === 'mini');
+        if (items.length === 0) return '';
+        return `
+      <div class="bio-section">
+        <h3>My Cars</h3>
+        ${largeItems.length > 0 ? `
+        <h4 style="margin-bottom:10px;color:var(--color-text-muted);font-size:0.78rem;text-transform:uppercase;letter-spacing:0.05em">Large Die-casts (${largeItems.length})</h4>
+        <div class="tracked-items-list">
+          ${largeItems.map(item => `
+          <div class="tracked-item">
+            ${item.photo ? `<img class="tracked-item-photo" src="${esc(item.photo)}" alt="">` : `<div class="tracked-item-no-photo">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+            </div>`}
+            <span class="tracked-item-name">${esc(item.name)}</span>
+            <button class="tracked-item-remove" data-remove-car="${esc(char.id)}" data-remove-id="${esc(item.id)}" title="Remove">&times;</button>
+          </div>`).join('')}
+        </div>` : ''}
+        ${miniItems.length > 0 ? `
+        <h4 style="margin:${largeItems.length > 0 ? '20px' : '0'} 0 10px;color:var(--color-text-muted);font-size:0.78rem;text-transform:uppercase;letter-spacing:0.05em">Mini Die-casts (${miniItems.length})</h4>
+        <div class="tracked-items-list">
+          ${miniItems.map(item => `
+          <div class="tracked-item">
+            ${item.photo ? `<img class="tracked-item-photo" src="${esc(item.photo)}" alt="">` : `<div class="tracked-item-no-photo">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+            </div>`}
+            <span class="tracked-item-name">${esc(item.name)}</span>
+            <button class="tracked-item-remove" data-remove-car="${esc(char.id)}" data-remove-id="${esc(item.id)}" title="Remove">&times;</button>
+          </div>`).join('')}
+        </div>` : ''}
+      </div>`;
+      })()}
     </div>`;
 
-  wireTrackerButtons(appEl);
+  wireAddCarButtons(appEl);
+
+  // Remove tracked items
+  appEl.querySelectorAll('.tracked-item-remove').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const carId  = btn.dataset.removeCar;
+      const itemId = btn.dataset.removeId;
+      if (confirm('Remove this car from your collection?')) {
+        removeCarItem(carId, itemId);
+        renderBio(appEl, id);
+      }
+    });
+  });
 
   // Gallery lightbox
   appEl.querySelectorAll('.gallery-item[data-gallery-idx]').forEach(item => {
