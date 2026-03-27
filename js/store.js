@@ -70,8 +70,10 @@ export function slugify(name) {
 }
 
 /** Resolve the primary display image src for a character.
- *  Priority: first gallery image > legacy image field > null */
+ *  Priority: profileImage > first gallery image > legacy image field > null */
 export function resolveImage(char) {
+  // Explicit profile picture selection
+  if (char.profileImage) return char.profileImage;
   // Check gallery images first (Supabase URLs)
   if (char.images && char.images.length > 0) return char.images[0];
   // Legacy single image field

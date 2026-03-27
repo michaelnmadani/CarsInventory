@@ -410,11 +410,18 @@ async function renderBio(appEl, id) {
       <div class="bio-section">
         <h3>Photo Gallery</h3>
         <div class="gallery-grid" id="galleryGrid">
-          ${hasGallery ? galleryUrls.map((url, i) => `
-            <div class="gallery-item" data-gallery-idx="${i}">
+          ${hasGallery ? galleryUrls.map((url, i) => {
+            const isProfile = resolveImage(char) === url;
+            return `
+            <div class="gallery-item ${isProfile ? 'is-profile' : ''}" data-gallery-idx="${i}">
               <img src="${esc(url)}" alt="" loading="lazy">
-              <button class="gallery-delete" data-gallery-url="${esc(url)}" title="Delete photo">&times;</button>
-            </div>`).join('') : '<div class="gallery-empty">No photos yet. Add one below!</div>'}
+              ${isProfile ? '<span class="gallery-profile-badge">Profile</span>' : ''}
+              <div class="gallery-item-actions">
+                ${!isProfile ? `<button class="gallery-set-profile" data-gallery-url="${esc(url)}" title="Set as profile picture">&#9733;</button>` : ''}
+                <button class="gallery-delete" data-gallery-url="${esc(url)}" title="Delete photo">&times;</button>
+              </div>
+            </div>`;
+          }).join('') : '<div class="gallery-empty">No photos yet. Add one below!</div>'}
         </div>
         <div class="gallery-actions">
           <button class="btn btn-sm btn-primary" id="bioUploadBtn">${uploadIconSVG} Upload Photo</button>
@@ -461,6 +468,18 @@ async function renderBio(appEl, id) {
     });
   });
 
+  // Set as profile picture
+  appEl.querySelectorAll('.gallery-set-profile').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const url = btn.dataset.galleryUrl;
+      const updated = getCharacter(id);
+      updated.profileImage = url;
+      saveCharacter(updated);
+      renderBio(appEl, id);
+    });
+  });
+
   // Gallery delete
   appEl.querySelectorAll('.gallery-delete').forEach(btn => {
     btn.addEventListener('click', async (e) => {
@@ -469,11 +488,15 @@ async function renderBio(appEl, id) {
       if (!confirm('Delete this photo?')) return;
       showSpinner('Deleting...');
       await deleteRemoteImage(url);
-      // Also remove from character's images array if present
-      if (char.images && char.images.includes(url)) {
-        char.images = char.images.filter(u => u !== url);
-        saveCharacter(char);
+      // Also remove from character's images array and clear profile if needed
+      const updated = getCharacter(id);
+      if (updated.images && updated.images.includes(url)) {
+        updated.images = updated.images.filter(u => u !== url);
       }
+      if (updated.profileImage === url) {
+        updated.profileImage = '';
+      }
+      saveCharacter(updated);
       hideSpinner();
       renderBio(appEl, id);
     });
