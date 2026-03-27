@@ -40,15 +40,29 @@ function genId() {
   return Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
 }
 
-/** Get counts for a character (for cards/collection table) */
+/** Get counts for a character — only owned items count toward totals */
 export function getCarCount(carId) {
   const col = getCollection();
   const entry = col[carId];
   if (!entry || !entry.items) return { large: 0, mini: 0 };
+  const owned = entry.items.filter(i => i.status !== 'unpurchased');
   return {
-    large: entry.items.filter(i => i.type === 'large').length,
-    mini:  entry.items.filter(i => i.type === 'mini').length,
+    large: owned.filter(i => i.type === 'large').length,
+    mini:  owned.filter(i => i.type === 'mini').length,
   };
+}
+
+/** Get all tracked items across every character (for All Cars page) */
+export function getAllItems() {
+  const col = getCollection();
+  const result = [];
+  for (const carId in col) {
+    const items = col[carId]?.items || [];
+    for (const item of items) {
+      result.push({ ...item, carId });
+    }
+  }
+  return result;
 }
 
 /** Get all tracked items for a character */
@@ -58,10 +72,10 @@ export function getCarItems(carId) {
 }
 
 /** Add a new tracked item */
-export function addCarItem(carId, name, type, photo = '') {
+export function addCarItem(carId, name, type, photo = '', status = 'owned') {
   const col = getCollection();
   if (!col[carId]) col[carId] = { items: [] };
-  col[carId].items.push({ id: genId(), name, type, photo });
+  col[carId].items.push({ id: genId(), name, type, photo, status });
   save(col);
 }
 
@@ -87,7 +101,7 @@ export function getStats(totalChars) {
   const col = getCollection();
   let totalLarge = 0, totalMini = 0, uniqueOwned = 0;
   for (const id in col) {
-    const items = col[id]?.items || [];
+    const items = (col[id]?.items || []).filter(i => i.status !== 'unpurchased');
     const large = items.filter(i => i.type === 'large').length;
     const mini  = items.filter(i => i.type === 'mini').length;
     totalLarge += large;

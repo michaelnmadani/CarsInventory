@@ -2,7 +2,7 @@ import { isLoggedIn, getAuth, clearAuth } from './auth.js';
 import { onRoute, initRouter, navigate } from './router.js';
 import { getAllCharacters, getCharacter, saveCharacter, deleteCharacter, slugify, resolveImage, resolveGallery } from './store.js';
 import { searchCars } from './search.js';
-import { getCarCount, getCarItems, addCarItem, removeCarItem, updateItemPhoto, getStats } from './tracker.js';
+import { getCarCount, getCarItems, addCarItem, removeCarItem, updateItemPhoto, getStats, getAllItems } from './tracker.js';
 import { compressImage, blobExtension } from './imageUtils.js';
 import { uploadImage, listImages, deleteImage as deleteRemoteImage, isSupabaseReady } from './supabase.js';
 import { initSync } from './sync.js';
@@ -25,7 +25,7 @@ function renderNavbar() {
       <a class="nav-link" href="#/dashboard" data-route="/dashboard">Dashboard</a>
       <a class="nav-link" href="#/database" data-route="/database">Database</a>
       <a class="nav-link" href="#/collection" data-route="/collection">Collection</a>
-      <a class="nav-link" href="#/mycars" data-route="/mycars">My Cars</a>
+      <a class="nav-link" href="#/mycars" data-route="/mycars">All Cars</a>
       <a class="nav-link" href="#/add" data-route="/add">+ Add Car</a>
     </div>
     <div class="navbar-actions">
@@ -120,6 +120,13 @@ function openAddItemModal(charId, type) {
         <label for="itemName">Name *</label>
         <input class="form-control" id="itemName" type="text" placeholder="e.g. Birthday McQueen" required autofocus>
       </div>
+      <div class="form-group">
+        <label>Status</label>
+        <div class="status-toggle">
+          <button type="button" class="status-btn active" id="statusOwned" data-status="owned">&#10003; Owned</button>
+          <button type="button" class="status-btn" id="statusUnpurchased" data-status="unpurchased">&#9733; Wishlist</button>
+        </div>
+      </div>
       <div class="modal-photo-row">
         <span class="text-muted" style="font-size:0.85rem">Want to add a photo?</span>
         <div class="flex-gap">
@@ -135,18 +142,28 @@ function openAddItemModal(charId, type) {
       </div>
       <div class="form-actions" style="border:none;padding-top:16px;margin-top:8px">
         <button type="button" class="btn btn-ghost" id="modalCancel">Cancel</button>
-        <button type="button" class="btn btn-primary" id="modalSave">Add to Collection</button>
+        <button type="button" class="btn btn-primary" id="modalSave">Save</button>
       </div>
     </div>`;
   document.body.appendChild(modal);
 
   let selectedFile = null;
+  let selectedStatus = 'owned';
 
   const nameInput     = document.getElementById('itemName');
   const fileInput     = document.getElementById('modalFileInput');
   const cameraInput   = document.getElementById('modalCameraInput');
   const previewWrap   = document.getElementById('modalPhotoPreview');
   const previewImg    = document.getElementById('modalPreviewImg');
+
+  // Status toggle
+  modal.querySelectorAll('.status-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      selectedStatus = btn.dataset.status;
+      modal.querySelectorAll('.status-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    });
+  });
 
   document.getElementById('modalUploadBtn').addEventListener('click', () => fileInput.click());
   document.getElementById('modalCameraBtn').addEventListener('click', () => cameraInput.click());
@@ -177,7 +194,6 @@ function openAddItemModal(charId, type) {
     if (selectedFile) {
       photoUrl = await handlePhotoUpload(selectedFile, charId);
       if (photoUrl) {
-        // Also add to character gallery
         const char = getCharacter(charId);
         if (char) {
           if (!char.images) char.images = [];
@@ -187,12 +203,11 @@ function openAddItemModal(charId, type) {
       }
     }
 
-    addCarItem(charId, name, type, photoUrl);
+    addCarItem(charId, name, type, photoUrl, selectedStatus);
     closeAddItemModal();
     window.dispatchEvent(new HashChangeEvent('hashchange'));
   });
 
-  // Enter key to save
   nameInput.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') document.getElementById('modalSave').click();
   });
@@ -578,15 +593,19 @@ async function renderBio(appEl, id) {
         const miniItems  = items.filter(i => i.type === 'mini');
         if (items.length === 0) return '';
 
-        function tileHTML(item, charId) {
+        const ownedLarge = largeItems.filter(i => i.status !== 'unpurchased').length;
+        const ownedMini  = miniItems.filter(i => i.status !== 'unpurchased').length;
+
+        function modelRowHTML(item, charId) {
+          const isWish = item.status === 'unpurchased';
           return `
-          <div class="tracked-tile">
-            ${item.photo ? `<img class="tracked-tile-photo" src="${esc(item.photo)}" alt="">` : `<div class="tracked-tile-no-photo">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
-            </div>`}
-            <div class="tracked-tile-info">
-              <div class="tracked-tile-name">${esc(item.name)}</div>
-              <div class="tracked-tile-type">${esc(item.type)}</div>
+          <div class="model-row ${isWish ? 'model-row-wish' : ''}">
+            ${item.photo
+              ? `<img class="model-row-photo" src="${esc(item.photo)}" alt="">`
+              : `<div class="model-row-no-photo"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg></div>`}
+            <div class="model-row-info">
+              <span class="model-row-name">${esc(item.name)}</span>
+              <span class="model-row-status ${isWish ? 'status-wish' : 'status-owned'}">${isWish ? 'Wishlist' : 'Owned'}</span>
             </div>
             <button class="tracked-tile-remove" data-remove-car="${esc(charId)}" data-remove-id="${esc(item.id)}" title="Remove">&times;</button>
           </div>`;
@@ -594,16 +613,22 @@ async function renderBio(appEl, id) {
 
         return `
       <div class="bio-section">
-        <h3>My Cars</h3>
+        <h3>Tracked Models</h3>
         ${largeItems.length > 0 ? `
-        <h4 style="margin-bottom:10px;color:var(--color-text-muted);font-size:0.72rem;text-transform:uppercase;letter-spacing:0.05em">Large Die-casts (${largeItems.length})</h4>
-        <div class="tracked-items-grid">
-          ${largeItems.map(item => tileHTML(item, char.id)).join('')}
+        <div class="model-group-header">
+          <span>Large Die-casts</span>
+          <span class="model-group-count">${ownedLarge} owned${largeItems.length > ownedLarge ? ` · ${largeItems.length - ownedLarge} wishlist` : ''}</span>
+        </div>
+        <div class="model-list">
+          ${largeItems.map(item => modelRowHTML(item, char.id)).join('')}
         </div>` : ''}
         ${miniItems.length > 0 ? `
-        <h4 style="margin:${largeItems.length > 0 ? '20px' : '0'} 0 10px;color:var(--color-text-muted);font-size:0.72rem;text-transform:uppercase;letter-spacing:0.05em">Mini Die-casts (${miniItems.length})</h4>
-        <div class="tracked-items-grid">
-          ${miniItems.map(item => tileHTML(item, char.id)).join('')}
+        <div class="model-group-header" style="${largeItems.length > 0 ? 'margin-top:16px' : ''}">
+          <span>Mini Die-casts</span>
+          <span class="model-group-count">${ownedMini} owned${miniItems.length > ownedMini ? ` · ${miniItems.length - ownedMini} wishlist` : ''}</span>
+        </div>
+        <div class="model-list">
+          ${miniItems.map(item => modelRowHTML(item, char.id)).join('')}
         </div>` : ''}
       </div>`;
       })()}
@@ -941,71 +966,93 @@ function renderAddEdit(appEl, editId) {
 }
 
 // ── My Cars View (global) ─────────────────────────────────────
+let allCarsFilter = 'all'; // all | owned | wishlist | large | mini
+
 function renderMyCars(appEl) {
   const allChars = getAllCharacters();
-  const collection = [];
+  const charMap = {};
+  for (const c of allChars) charMap[c.id] = c;
 
-  // Gather all tracked items with photos across all characters
-  for (const char of allChars) {
-    const items = getCarItems(char.id);
-    for (const item of items) {
-      if (item.photo) {
-        collection.push({ ...item, charId: char.id, charName: char.name });
-      }
-    }
-  }
+  // Gather all tracked items across all characters
+  let items = getAllItems().map(item => ({
+    ...item,
+    charName: charMap[item.carId]?.name || item.carId,
+    charImg:  charMap[item.carId] ? resolveImage(charMap[item.carId]) : null,
+  }));
 
-  // Sort: large first, then mini; within each type, by name
-  collection.sort((a, b) => {
+  // Apply filter
+  if (allCarsFilter === 'owned')    items = items.filter(i => i.status !== 'unpurchased');
+  if (allCarsFilter === 'wishlist') items = items.filter(i => i.status === 'unpurchased');
+  if (allCarsFilter === 'large')    items = items.filter(i => i.type === 'large');
+  if (allCarsFilter === 'mini')     items = items.filter(i => i.type === 'mini');
+
+  // Sort: owned first, then type, then character name
+  items.sort((a, b) => {
+    if (a.status !== b.status) return a.status === 'unpurchased' ? 1 : -1;
     if (a.type !== b.type) return a.type === 'large' ? -1 : 1;
-    return a.name.localeCompare(b.name);
+    return a.charName.localeCompare(b.charName);
   });
 
-  const largeItems = collection.filter(i => i.type === 'large');
-  const miniItems  = collection.filter(i => i.type === 'mini');
+  const allItems = getAllItems();
+  const totalOwned = allItems.filter(i => i.status !== 'unpurchased').length;
+  const totalWish  = allItems.filter(i => i.status === 'unpurchased').length;
+
+  const filters = ['all','owned','wishlist','large','mini'];
+  const filterLabels = { all: 'All', owned: 'Owned', wishlist: 'Wishlist', large: 'Large', mini: 'Mini' };
+
+  function itemTileHTML(item) {
+    const isWish = item.status === 'unpurchased';
+    return `
+    <div class="allcars-tile ${isWish ? 'allcars-tile-wish' : ''}" data-nav="${esc(item.carId)}">
+      ${item.photo
+        ? `<img class="allcars-tile-photo" src="${esc(item.photo)}" alt="">`
+        : item.charImg
+          ? `<img class="allcars-tile-photo" src="${esc(item.charImg)}" alt="">`
+          : `<div class="allcars-tile-no-photo"></div>`}
+      <div class="allcars-tile-info">
+        <div class="allcars-tile-name">${esc(item.name)}</div>
+        <div class="allcars-tile-char">${esc(item.charName)}</div>
+        <div class="allcars-tile-badges">
+          <span class="allcars-type-badge">${esc(item.type)}</span>
+          <span class="allcars-status-badge ${isWish ? 'wish' : 'owned'}">${isWish ? 'Wishlist' : 'Owned'}</span>
+        </div>
+      </div>
+    </div>`;
+  }
 
   appEl.innerHTML = `
     <div class="page">
       <div class="stripe-header">
-        <h2>My Cars</h2>
-        <p>${collection.length} die-cast${collection.length !== 1 ? 's' : ''} with photos</p>
+        <h2>All Cars</h2>
+        <p>${totalOwned} owned · ${totalWish} wishlist</p>
       </div>
 
-      ${collection.length === 0 ? `
+      <div class="filter-chips" style="margin-bottom:20px">
+        ${filters.map(f => `
+          <button class="filter-chip ${allCarsFilter === f ? 'active' : ''}" data-filter="${f}">${filterLabels[f]}</button>
+        `).join('')}
+      </div>
+
+      ${items.length === 0 ? `
         <div class="empty-state">
-          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
-          <h3>No photos yet</h3>
-          <p>Add die-casts with photos from any character's page to see them here.</p>
-        </div>` : ''}
-
-      ${largeItems.length > 0 ? `
-      <h4 style="margin-bottom:12px;color:var(--color-text-muted);font-size:0.78rem;text-transform:uppercase;letter-spacing:0.05em">Large Die-casts (${largeItems.length})</h4>
-      <div class="tracked-items-grid" style="margin-bottom:28px">
-        ${largeItems.map(item => `
-        <div class="tracked-tile" style="cursor:pointer" data-nav="${esc(item.charId)}">
-          <img class="tracked-tile-photo" src="${esc(item.photo)}" alt="">
-          <div class="tracked-tile-info">
-            <div class="tracked-tile-name">${esc(item.name)}</div>
-            <div class="my-cars-tile-char">${esc(item.charName)}</div>
-          </div>
-        </div>`).join('')}
-      </div>` : ''}
-
-      ${miniItems.length > 0 ? `
-      <h4 style="margin-bottom:12px;color:var(--color-text-muted);font-size:0.78rem;text-transform:uppercase;letter-spacing:0.05em">Mini Die-casts (${miniItems.length})</h4>
-      <div class="tracked-items-grid">
-        ${miniItems.map(item => `
-        <div class="tracked-tile" style="cursor:pointer" data-nav="${esc(item.charId)}">
-          <img class="tracked-tile-photo" src="${esc(item.photo)}" alt="">
-          <div class="tracked-tile-info">
-            <div class="tracked-tile-name">${esc(item.name)}</div>
-            <div class="my-cars-tile-char">${esc(item.charName)}</div>
-          </div>
-        </div>`).join('')}
-      </div>` : ''}
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/></svg>
+          <h3>No die-casts here</h3>
+          <p>Add die-casts from any character's profile page.</p>
+        </div>` :
+        `<div class="allcars-grid">
+          ${items.map(itemTileHTML).join('')}
+        </div>`}
     </div>`;
 
-  // Wire tile clicks to navigate to character bio
+  // Filter buttons
+  appEl.querySelectorAll('[data-filter]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      allCarsFilter = btn.dataset.filter;
+      renderMyCars(appEl);
+    });
+  });
+
+  // Navigate to character bio on tile click
   appEl.querySelectorAll('[data-nav]').forEach(el => {
     el.addEventListener('click', () => navigate(`#/bio/${el.dataset.nav}`));
   });

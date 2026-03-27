@@ -1539,14 +1539,204 @@ input[type="color"] {
 }
 .tracked-tile:hover .tracked-tile-remove { display: flex; }
 
-/* My Cars page — larger tiles with character name */
-.my-cars-tile-char {
-  font-size: 0.58rem;
+/* ============================================================
+   STATUS TOGGLE (add item modal)
+   ============================================================ */
+.status-toggle {
+  display: flex;
+  gap: 8px;
+}
+.status-btn {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+.status-btn.active[data-status="owned"] {
+  background: var(--color-success-bg);
+  border-color: var(--color-success);
+  color: var(--color-success);
+}
+.status-btn.active[data-status="unpurchased"] {
+  background: #fff8e1;
+  border-color: var(--color-accent);
+  color: var(--color-accent-dark);
+}
+
+/* ============================================================
+   MODEL ROW (bio tracker)
+   ============================================================ */
+.model-group-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.72rem;
   font-weight: 700;
-  color: var(--color-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: rgba(240,240,245,0.5);
+  margin-bottom: 8px;
+}
+.model-group-count {
+  font-weight: 600;
+  font-size: 0.7rem;
+  color: var(--color-accent);
+  text-transform: none;
+  letter-spacing: 0;
+}
+.model-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.model-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(255,255,255,0.92);
+  border-radius: var(--radius-md);
+  padding: 8px 10px;
+  border: 1px solid var(--color-border);
+  position: relative;
+}
+.model-row-wish {
+  background: rgba(255,248,225,0.9);
+  border-color: var(--color-accent);
+  opacity: 0.85;
+}
+.model-row-photo {
+  width: 44px;
+  height: 36px;
+  object-fit: contain;
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-alt);
+  flex-shrink: 0;
+}
+.model-row-no-photo {
+  width: 44px;
+  height: 36px;
+  background: var(--color-surface-alt);
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-muted);
+  flex-shrink: 0;
+}
+.model-row-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.model-row-name {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+.model-row-status {
+  font-size: 0.65rem;
+  font-weight: 700;
+  border-radius: 99px;
+  padding: 2px 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.status-owned { background: var(--color-success-bg); color: var(--color-success); }
+.status-wish  { background: #fff8e1; color: var(--color-accent-dark); }
+
+/* ============================================================
+   ALL CARS PAGE
+   ============================================================ */
+.allcars-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 12px;
+}
+.allcars-tile {
+  background: rgba(255,255,255,0.93);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  border: 1.5px solid var(--color-border);
+  cursor: pointer;
+  transition: transform var(--transition), box-shadow var(--transition);
+}
+.allcars-tile:hover { transform: translateY(-2px); box-shadow: var(--shadow-hover); }
+.allcars-tile-wish {
+  border-color: var(--color-accent);
+  opacity: 0.85;
+}
+.allcars-tile-photo {
+  width: 100%;
+  aspect-ratio: 4/3;
+  object-fit: contain;
+  background: var(--color-surface-alt);
+  display: block;
+  padding: 6px;
+}
+.allcars-tile-no-photo {
+  width: 100%;
+  aspect-ratio: 4/3;
+  background: var(--color-surface-alt);
+}
+.allcars-tile-info {
+  padding: 8px 10px;
+  border-top: 1px solid var(--color-border);
+}
+.allcars-tile-name {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--color-text);
+  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  margin-bottom: 2px;
+}
+.allcars-tile-char {
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: var(--color-primary);
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 5px;
+}
+.allcars-tile-badges {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+.allcars-type-badge {
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  background: var(--color-secondary);
+  color: var(--color-text-light);
+  border-radius: 99px;
+  padding: 2px 6px;
+}
+.allcars-status-badge {
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-radius: 99px;
+  padding: 2px 6px;
+}
+.allcars-status-badge.owned { background: var(--color-success-bg); color: var(--color-success); }
+.allcars-status-badge.wish  { background: #fff8e1; color: var(--color-accent-dark); }
+
+@media (max-width: 480px) {
+  .allcars-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 8px; }
 }
 
 @media (max-width: 480px) {
