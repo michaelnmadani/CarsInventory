@@ -1610,13 +1610,19 @@ input[type="color"] {
   border-color: var(--color-accent);
   opacity: 0.85;
 }
+.model-row-photo-wrap {
+  position: relative;
+  flex-shrink: 0;
+  width: 44px;
+  height: 36px;
+}
 .model-row-photo {
   width: 44px;
   height: 36px;
   object-fit: contain;
   border-radius: var(--radius-sm);
   background: var(--color-surface-alt);
-  flex-shrink: 0;
+  display: block;
 }
 .model-row-no-photo {
   width: 44px;
@@ -1627,8 +1633,23 @@ input[type="color"] {
   align-items: center;
   justify-content: center;
   color: var(--color-text-muted);
-  flex-shrink: 0;
 }
+.model-row-change-photo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.45);
+  border: none;
+  border-radius: var(--radius-sm);
+  color: #fff;
+  font-size: 0.8rem;
+  cursor: pointer;
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+.model-row-photo-wrap:hover .model-row-change-photo { display: flex; }
 .model-row-info {
   flex: 1;
   min-width: 0;
@@ -1652,6 +1673,69 @@ input[type="color"] {
 }
 .status-owned { background: var(--color-success-bg); color: var(--color-success); }
 .status-wish  { background: #fff8e1; color: var(--color-accent-dark); }
+.model-row-actions {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex-shrink: 0;
+}
+.model-row-mark-owned {
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--color-success);
+  background: var(--color-success-bg);
+  color: var(--color-success);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.model-row-mark-owned:hover { background: var(--color-success); color: #fff; }
+.model-row-delete {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: none;
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+.model-row-delete:hover { background: var(--color-danger); color: #fff; }
+
+/* Photo change popover */
+.photo-popover {
+  position: absolute;
+  left: 50px;
+  top: 0;
+  background: var(--color-surface);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  z-index: 100;
+  min-width: 120px;
+}
+.photo-pop-btn {
+  padding: 6px 10px;
+  border: none;
+  background: none;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--color-text);
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  text-align: left;
+}
+.photo-pop-btn:hover { background: var(--color-surface-alt); }
 
 /* ============================================================
    ALL CARS PAGE

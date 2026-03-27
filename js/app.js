@@ -2,7 +2,7 @@ import { isLoggedIn, getAuth, clearAuth } from './auth.js';
 import { onRoute, initRouter, navigate } from './router.js';
 import { getAllCharacters, getCharacter, saveCharacter, deleteCharacter, slugify, resolveImage, resolveGallery } from './store.js';
 import { searchCars } from './search.js';
-import { getCarCount, getCarItems, addCarItem, removeCarItem, updateItemPhoto, getStats, getAllItems } from './tracker.js';
+import { getCarCount, getCarItems, addCarItem, removeCarItem, updateItemPhoto, updateItemStatus, getStats, getAllItems } from './tracker.js';
 import { compressImage, blobExtension } from './imageUtils.js';
 import { uploadImage, listImages, deleteImage as deleteRemoteImage, isSupabaseReady } from './supabase.js';
 import { initSync } from './sync.js';
@@ -600,14 +600,22 @@ async function renderBio(appEl, id) {
           const isWish = item.status === 'unpurchased';
           return `
           <div class="model-row ${isWish ? 'model-row-wish' : ''}">
-            ${item.photo
-              ? `<img class="model-row-photo" src="${esc(item.photo)}" alt="">`
-              : `<div class="model-row-no-photo"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg></div>`}
+            <div class="model-row-photo-wrap">
+              ${item.photo
+                ? `<img class="model-row-photo" src="${esc(item.photo)}" alt="">`
+                : `<div class="model-row-no-photo"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg></div>`}
+              <button class="model-row-change-photo" data-car-id="${esc(charId)}" data-item-id="${esc(item.id)}" title="Change photo">&#128247;</button>
+              <input type="file" accept="image/*" class="model-row-file-input" hidden>
+              <input type="file" accept="image/*" capture="environment" class="model-row-camera-input" hidden>
+            </div>
             <div class="model-row-info">
               <span class="model-row-name">${esc(item.name)}</span>
               <span class="model-row-status ${isWish ? 'status-wish' : 'status-owned'}">${isWish ? 'Wishlist' : 'Owned'}</span>
             </div>
-            <button class="tracked-tile-remove" data-remove-car="${esc(charId)}" data-remove-id="${esc(item.id)}" title="Remove">&times;</button>
+            <div class="model-row-actions">
+              ${isWish ? `<button class="model-row-mark-owned" data-car-id="${esc(charId)}" data-item-id="${esc(item.id)}" title="Mark as owned">&#10003; Own it</button>` : ''}
+              <button class="model-row-delete" data-car-id="${esc(charId)}" data-item-id="${esc(item.id)}" title="Delete">&times;</button>
+            </div>
           </div>`;
         }
 
@@ -636,7 +644,7 @@ async function renderBio(appEl, id) {
 
   wireAddCarButtons(appEl);
 
-  // Remove tracked items
+  // Remove tracked items (old tile style, kept for safety)
   appEl.querySelectorAll('.tracked-tile-remove').forEach(btn => {
     btn.addEventListener('click', () => {
       const carId  = btn.dataset.removeCar;
@@ -646,6 +654,70 @@ async function renderBio(appEl, id) {
         renderBio(appEl, id);
       }
     });
+  });
+
+  // Delete model row
+  appEl.querySelectorAll('.model-row-delete').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (confirm('Remove this die-cast?')) {
+        removeCarItem(btn.dataset.carId, btn.dataset.itemId);
+        renderBio(appEl, id);
+      }
+    });
+  });
+
+  // Mark wishlist → owned
+  appEl.querySelectorAll('.model-row-mark-owned').forEach(btn => {
+    btn.addEventListener('click', () => {
+      updateItemStatus(btn.dataset.carId, btn.dataset.itemId, 'owned');
+      renderBio(appEl, id);
+    });
+  });
+
+  // Change photo on a model row
+  appEl.querySelectorAll('.model-row-change-photo').forEach(btn => {
+    const row       = btn.closest('.model-row');
+    const fileInput = row.querySelector('.model-row-file-input');
+    const camInput  = row.querySelector('.model-row-camera-input');
+    const carId     = btn.dataset.carId;
+    const itemId    = btn.dataset.itemId;
+
+    // Show a small popover with upload/camera options
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      // Remove any existing popover
+      document.querySelectorAll('.photo-popover').forEach(p => p.remove());
+      const pop = document.createElement('div');
+      pop.className = 'photo-popover';
+      pop.innerHTML = `
+        <button class="photo-pop-btn" id="popUpload">&#128190; Upload</button>
+        <button class="photo-pop-btn" id="popCamera">&#128247; Camera</button>`;
+      btn.after(pop);
+      pop.querySelector('#popUpload').addEventListener('click', (e) => { e.stopPropagation(); fileInput.click(); pop.remove(); });
+      pop.querySelector('#popCamera').addEventListener('click', (e) => { e.stopPropagation(); camInput.click(); pop.remove(); });
+      // Close on outside click
+      setTimeout(() => document.addEventListener('click', () => pop.remove(), { once: true }), 0);
+    });
+
+    async function onPhotoFile(file) {
+      showSpinner('Uploading...');
+      const url = await handlePhotoUpload(file, carId);
+      if (url) {
+        updateItemPhoto(carId, itemId, url);
+        // Also add to character gallery
+        const updated = getCharacter(carId);
+        if (updated) {
+          if (!updated.images) updated.images = [];
+          if (!updated.images.includes(url)) updated.images.push(url);
+          saveCharacter(updated);
+        }
+      }
+      hideSpinner();
+      renderBio(appEl, id);
+    }
+
+    fileInput.addEventListener('change', () => { if (fileInput.files[0]) onPhotoFile(fileInput.files[0]); });
+    camInput.addEventListener('change',  () => { if (camInput.files[0])  onPhotoFile(camInput.files[0]); });
   });
 
   // Gallery lightbox

@@ -97,6 +97,15 @@ export function updateItemPhoto(carId, itemId, photo) {
   save(col);
 }
 
+/** Update the status of an existing item */
+export function updateItemStatus(carId, itemId, status) {
+  const col = getCollection();
+  if (!col[carId]) return;
+  const item = col[carId].items.find(i => i.id === itemId);
+  if (item) item.status = status;
+  save(col);
+}
+
 export function getStats(totalChars) {
   const col = getCollection();
   let totalLarge = 0, totalMini = 0, uniqueOwned = 0;
