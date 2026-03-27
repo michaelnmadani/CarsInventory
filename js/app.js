@@ -349,92 +349,112 @@ let dbMovie = '';
 
 function renderDatabase(appEl) {
   const allCars = getAllCharacters();
-  const filtered = searchCars(allCars, dbQuery, dbMovie);
 
   const searchIcon = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>`;
 
-  appEl.innerHTML = `
-    <div class="page">
-      <div class="stripe-header">
-        <h2>Cars Database</h2>
-        <p>${allCars.length} characters from the Cars Universe</p>
-      </div>
-
-      <div class="search-bar-row">
-        <div class="search-input-wrap">
-          ${searchIcon}
-          <input class="search-input" id="dbSearch" type="text" placeholder="Search by name, number, sponsor, or movie..." value="${esc(dbQuery)}">
+  // Only build the full shell once; subsequent calls just update the grid
+  if (!appEl.querySelector('#dbSearch')) {
+    appEl.innerHTML = `
+      <div class="page">
+        <div class="stripe-header">
+          <h2>Cars Database</h2>
+          <p id="dbCharCount">${allCars.length} characters from the Cars Universe</p>
         </div>
-        <div class="filter-chips">
-          <button class="filter-chip ${dbMovie === '' ? 'active' : ''}" data-movie="">All</button>
-          <button class="filter-chip ${dbMovie === 'Cars' ? 'active' : ''}" data-movie="Cars">Cars</button>
-          <button class="filter-chip ${dbMovie === 'Cars 2' ? 'active' : ''}" data-movie="Cars 2">Cars 2</button>
-          <button class="filter-chip ${dbMovie === 'Cars 3' ? 'active' : ''}" data-movie="Cars 3">Cars 3</button>
+
+        <div class="search-bar-row">
+          <div class="search-input-wrap">
+            ${searchIcon}
+            <input class="search-input" id="dbSearch" type="text" placeholder="Search by name, number, sponsor, or movie..." value="${esc(dbQuery)}">
+          </div>
+          <div class="filter-chips" id="dbFilterChips">
+            <button class="filter-chip ${dbMovie === '' ? 'active' : ''}" data-movie="">All</button>
+            <button class="filter-chip ${dbMovie === 'Cars' ? 'active' : ''}" data-movie="Cars">Cars</button>
+            <button class="filter-chip ${dbMovie === 'Cars 2' ? 'active' : ''}" data-movie="Cars 2">Cars 2</button>
+            <button class="filter-chip ${dbMovie === 'Cars 3' ? 'active' : ''}" data-movie="Cars 3">Cars 3</button>
+          </div>
         </div>
-      </div>
 
-      <div class="results-count">${filtered.length} result${filtered.length !== 1 ? 's' : ''}</div>
+        <div class="results-count" id="dbResultsCount"></div>
+        <div id="dbGridContainer"></div>
+      </div>`;
 
-      <div class="cars-grid" id="carsGrid">
-        ${filtered.map(car => {
-          const cnt = getCarCount(car.id);
-          return `
-          <div class="car-card" data-id="${esc(car.id)}">
-            <div class="car-card-image" data-nav="${esc(car.id)}">
-              ${car.number ? `<span class="car-card-number">#${esc(car.number)}</span>` : ''}
-              ${car.isCustom ? '<span class="badge badge-custom" style="position:absolute;top:8px;right:8px">Custom</span>' : ''}
-              ${carImageHTML(car)}
-            </div>
-            <div class="car-card-body" data-nav="${esc(car.id)}">
-              <div class="car-card-name">${esc(car.name)}</div>
-              <div class="car-card-sponsor">${esc(car.sponsor || 'Unknown')}</div>
-              <div class="movie-tags">${movieTagsHTML(car.movies)}</div>
-            </div>
-            <div class="car-card-tracker">
-              <div class="tracker-row">
-                <span class="tracker-label">Large</span>
-                ${trackerHTML(car.id, 'large', cnt.large)}
-              </div>
-              <div class="tracker-row">
-                <span class="tracker-label">Mini</span>
-                ${trackerHTML(car.id, 'mini', cnt.mini)}
-              </div>
-            </div>
-          </div>`;
-        }).join('')}
-      </div>
-
-      ${filtered.length === 0 ? `
-        <div class="empty-state">
-          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/><path d="m8 11h6"/></svg>
-          <h3>No cars found</h3>
-          <p>Try a different search or filter.</p>
-        </div>` : ''}
-    </div>`;
-
-  // Wire search
-  const searchInput = document.getElementById('dbSearch');
-  let debounce;
-  searchInput.addEventListener('input', () => {
-    clearTimeout(debounce);
-    debounce = setTimeout(() => { dbQuery = searchInput.value; renderDatabase(appEl); }, 250);
-  });
-  searchInput.focus();
-
-  // Wire movie filters
-  appEl.querySelectorAll('.filter-chip[data-movie]').forEach(chip => {
-    chip.addEventListener('click', () => {
-      dbMovie = chip.dataset.movie;
-      renderDatabase(appEl);
+    // Wire search — only once
+    const searchInput = document.getElementById('dbSearch');
+    let debounce;
+    searchInput.addEventListener('input', () => {
+      clearTimeout(debounce);
+      debounce = setTimeout(() => {
+        dbQuery = searchInput.value;
+        updateDatabaseGrid(appEl);
+      }, 250);
     });
-  });
+
+    // Wire movie filters — only once
+    document.getElementById('dbFilterChips').addEventListener('click', (e) => {
+      const chip = e.target.closest('.filter-chip[data-movie]');
+      if (!chip) return;
+      dbMovie = chip.dataset.movie;
+      // Update active state
+      document.querySelectorAll('#dbFilterChips .filter-chip').forEach(c => c.classList.toggle('active', c.dataset.movie === dbMovie));
+      updateDatabaseGrid(appEl);
+    });
+  }
+
+  updateDatabaseGrid(appEl);
+}
+
+function updateDatabaseGrid(appEl) {
+  const allCars  = getAllCharacters();
+  const filtered = searchCars(allCars, dbQuery, dbMovie);
+
+  const countEl     = document.getElementById('dbResultsCount');
+  const containerEl = document.getElementById('dbGridContainer');
+  if (!countEl || !containerEl) return;
+
+  countEl.textContent = `${filtered.length} result${filtered.length !== 1 ? 's' : ''}`;
+
+  containerEl.innerHTML = `
+    <div class="cars-grid" id="carsGrid">
+      ${filtered.map(car => {
+        const cnt = getCarCount(car.id);
+        return `
+        <div class="car-card" data-id="${esc(car.id)}">
+          <div class="car-card-image" data-nav="${esc(car.id)}">
+            ${car.number ? `<span class="car-card-number">#${esc(car.number)}</span>` : ''}
+            ${car.isCustom ? '<span class="badge badge-custom" style="position:absolute;top:8px;right:8px">Custom</span>' : ''}
+            ${carImageHTML(car)}
+          </div>
+          <div class="car-card-body" data-nav="${esc(car.id)}">
+            <div class="car-card-name">${esc(car.name)}</div>
+            <div class="car-card-sponsor">${esc(car.sponsor || 'Unknown')}</div>
+            <div class="movie-tags">${movieTagsHTML(car.movies)}</div>
+          </div>
+          <div class="car-card-tracker">
+            <div class="tracker-row">
+              <span class="tracker-label">Large</span>
+              ${trackerHTML(car.id, 'large', cnt.large)}
+            </div>
+            <div class="tracker-row">
+              <span class="tracker-label">Mini</span>
+              ${trackerHTML(car.id, 'mini', cnt.mini)}
+            </div>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>
+    ${filtered.length === 0 ? `
+      <div class="empty-state">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/><path d="m8 11h6"/></svg>
+        <h3>No cars found</h3>
+        <p>Try a different search or filter.</p>
+      </div>` : ''}`;
 
   // Wire card clicks
-  appEl.querySelectorAll('[data-nav]').forEach(el => {
+  containerEl.querySelectorAll('[data-nav]').forEach(el => {
     el.addEventListener('click', () => navigate(`#/bio/${el.dataset.nav}`));
   });
 
-  wireAddCarButtons(appEl);
+  wireAddCarButtons(containerEl);
 }
 
 // ── Bio View ──────────────────────────────────────────────────
