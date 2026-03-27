@@ -301,45 +301,48 @@ function renderDashboard(appEl) {
   const auth  = getAuth();
 
   appEl.innerHTML = `
-    <div class="page">
-      <div class="stripe-header">
-        <h2>Welcome back, ${esc(auth ? auth.username : 'Racer')}!</h2>
-        <p>Track your Cars Universe die-cast collection</p>
-      </div>
+    <div class="dashboard-bg">
+      <div class="dashboard-overlay"></div>
+      <div class="dashboard-content">
+        <div class="stripe-header dashboard-header">
+          <h2>Welcome back, ${esc(auth ? auth.username : 'Racer')}!</h2>
+          <p>Track your Cars Universe die-cast collection</p>
+        </div>
 
-      <div class="stats-grid">
-        <div class="stat-card">
-          <div class="stat-card-value">${stats.uniqueOwned}</div>
-          <div class="stat-card-label">Cars Owned</div>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-card-value">${stats.uniqueOwned}</div>
+            <div class="stat-card-label">Cars Owned</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-value">${stats.total}</div>
+            <div class="stat-card-label">Total Cars</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-value">${stats.totalLarge}</div>
+            <div class="stat-card-label">Large Die-casts</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-value">${stats.totalMini}</div>
+            <div class="stat-card-label">Mini Die-casts</div>
+          </div>
         </div>
-        <div class="stat-card">
-          <div class="stat-card-value">${stats.total}</div>
-          <div class="stat-card-label">Total Cars</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-card-value">${stats.totalLarge}</div>
-          <div class="stat-card-label">Large Die-casts</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-card-value">${stats.totalMini}</div>
-          <div class="stat-card-label">Mini Die-casts</div>
-        </div>
-      </div>
 
-      <div class="progress-section">
-        <div class="progress-label">
-          <span>Collection Progress</span>
-          <span>${stats.pct}%</span>
+        <div class="progress-section">
+          <div class="progress-label">
+            <span>Collection Progress</span>
+            <span>${stats.pct}%</span>
+          </div>
+          <div class="progress-bar-bg">
+            <div class="progress-bar-fill" style="width:${stats.pct}%"></div>
+          </div>
         </div>
-        <div class="progress-bar-bg">
-          <div class="progress-bar-fill" style="width:${stats.pct}%"></div>
-        </div>
-      </div>
 
-      <div class="quick-links">
-        <a class="btn btn-primary" href="#/database">Browse Database</a>
-        <a class="btn btn-secondary" href="#/collection">View Collection</a>
-        <a class="btn btn-accent" href="#/add">+ Add Character</a>
+        <div class="quick-links">
+          <a class="btn btn-primary" href="#/database">Browse Database</a>
+          <a class="btn btn-secondary" href="#/collection">View Collection</a>
+          <a class="btn btn-accent" href="#/add">+ Add Character</a>
+        </div>
       </div>
     </div>`;
 }

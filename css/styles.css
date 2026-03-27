@@ -448,6 +448,38 @@ input[type="color"] {
 .stripe-header p { position: relative; z-index: 1; color: rgba(240,240,245,0.7); margin-top: 4px; font-size: 0.9rem; }
 
 /* ============================================================
+   DASHBOARD BACKGROUND
+   ============================================================ */
+.dashboard-bg {
+  position: relative;
+  min-height: calc(100vh - var(--navbar-h));
+  background: url('../images/dashboard-bg.jpg') center/cover no-repeat fixed;
+  background-color: var(--color-secondary);
+}
+.dashboard-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(26, 26, 46, 0.65) 0%,
+    rgba(26, 26, 46, 0.82) 100%
+  );
+}
+.dashboard-content {
+  position: relative;
+  z-index: 1;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 36px 24px 48px;
+}
+.dashboard-header {
+  background: rgba(26, 26, 46, 0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(245, 197, 24, 0.15);
+}
+
+/* ============================================================
    DASHBOARD
    ============================================================ */
 .stats-grid {
@@ -458,12 +490,14 @@ input[type="color"] {
 }
 
 .stat-card {
-  background: var(--color-surface);
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
   border-radius: var(--radius-lg);
   padding: 24px 20px;
   text-align: center;
   box-shadow: var(--shadow-sm);
-  border: 1.5px solid var(--color-border);
+  border: 1.5px solid rgba(255, 255, 255, 0.3);
   transition: transform var(--transition), box-shadow var(--transition);
 }
 .stat-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
@@ -483,11 +517,13 @@ input[type="color"] {
 }
 
 .progress-section {
-  background: var(--color-surface);
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
   border-radius: var(--radius-lg);
   padding: 24px;
   box-shadow: var(--shadow-sm);
-  border: 1.5px solid var(--color-border);
+  border: 1.5px solid rgba(255, 255, 255, 0.3);
   margin-bottom: 32px;
 }
 .progress-label {
