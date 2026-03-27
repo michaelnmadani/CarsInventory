@@ -967,7 +967,8 @@ input[type="color"] {
   background: var(--color-surface);
   border-radius: var(--radius-lg);
   border: 1.5px solid var(--color-border);
-  overflow: hidden;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
   box-shadow: var(--shadow-sm);
 }
 
@@ -983,12 +984,12 @@ input[type="color"] {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  padding: 12px 16px;
+  padding: 10px 10px;
   text-align: left;
   white-space: nowrap;
 }
 .collection-table td {
-  padding: 12px 16px;
+  padding: 10px 10px;
   border-bottom: 1px solid var(--color-border);
   vertical-align: middle;
 }
@@ -1002,27 +1003,27 @@ input[type="color"] {
 .collection-table tbody tr.owned:hover { background: #d5f5e3; }
 
 .collection-table .col-thumb {
-  width: 60px;
+  width: 44px;
 }
 .thumb-img {
-  width: 48px;
-  height: 36px;
+  width: 40px;
+  height: 30px;
   object-fit: contain;
   border-radius: var(--radius-sm);
   background: var(--color-surface-alt);
 }
 
-.col-number { width: 80px; font-weight: 700; color: var(--color-primary); }
-.col-count { width: 80px; text-align: center; }
+.col-number { width: 50px; font-weight: 700; color: var(--color-primary); }
+.col-count { width: 50px; text-align: center; }
 .count-badge {
   display: inline-block;
-  min-width: 28px;
+  min-width: 24px;
   text-align: center;
   background: var(--color-surface-alt);
   border: 1px solid var(--color-border);
   border-radius: 12px;
-  padding: 2px 8px;
-  font-size: 0.82rem;
+  padding: 2px 6px;
+  font-size: 0.78rem;
   font-weight: 700;
 }
 .count-badge.has-items {
@@ -1034,10 +1035,10 @@ input[type="color"] {
 .collection-footer {
   background: var(--color-secondary);
   color: var(--color-text-light);
-  padding: 14px 16px;
+  padding: 12px 10px;
   display: flex;
-  gap: 24px;
-  font-size: 0.85rem;
+  gap: 16px;
+  font-size: 0.8rem;
   font-weight: 600;
   flex-wrap: wrap;
 }
@@ -1158,23 +1159,43 @@ input[type="color"] {
   }
   .bio-image-wrap { max-width: 280px; }
 
-  .collection-table th:nth-child(5),
-  .collection-table td:nth-child(5) { display: none; }
+  /* Hide sponsor column on tablets */
+  .collection-table th:nth-child(4),
+  .collection-table td:nth-child(4) { display: none; }
+
+  .collection-table th { padding: 8px 8px; font-size: 0.7rem; }
+  .collection-table td { padding: 8px 8px; font-size: 0.82rem; }
 
   .login-card { padding: 32px 24px; }
 }
 
 @media (max-width: 480px) {
-  .page { padding: 20px 16px; }
-  .cars-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 14px; }
+  .page { padding: 20px 12px; }
+  .cars-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
   .stripe-header { padding: 20px 16px; }
   .stats-grid { grid-template-columns: repeat(2, 1fr); }
+
+  /* Hide sponsor + thumb on small phones */
+  .collection-table th:nth-child(4),
+  .collection-table td:nth-child(4) { display: none; }
+  .collection-table th:nth-child(1),
+  .collection-table td:nth-child(1) { display: none; }
+
+  .collection-table th { padding: 8px 6px; font-size: 0.68rem; }
+  .collection-table td { padding: 8px 6px; font-size: 0.78rem; }
+  .col-number { width: 36px; }
+  .col-count { width: 40px; }
+  .count-badge { min-width: 20px; padding: 1px 5px; font-size: 0.72rem; }
+
+  .collection-footer { padding: 10px 8px; gap: 10px; font-size: 0.75rem; }
+
+  .collection-controls { font-size: 0.8rem; }
 }
 
 /* ============================================================
    UTILITIES
    ============================================================ */
-.text-muted { color: var(--color-text-muted); }
+.text-muted { color: rgba(240,240,245,0.6); }
 .text-primary { color: var(--color-primary); }
 .text-accent { color: var(--color-accent); }
 .mt-1 { margin-top: 8px; }
