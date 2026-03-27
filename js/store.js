@@ -70,16 +70,17 @@ export function slugify(name) {
 }
 
 /** Resolve the primary display image src for a character.
- *  Priority: profileImage > first gallery image > legacy image field > null */
+ *  Priority: profileImage > first gallery image > legacy image field (only if URL) > null */
 export function resolveImage(char) {
   // Explicit profile picture selection
   if (char.profileImage) return char.profileImage;
   // Check gallery images first (Supabase URLs)
   if (char.images && char.images.length > 0) return char.images[0];
-  // Legacy single image field
-  if (!char.image) return null;
-  if (char.image.startsWith('data:') || char.image.startsWith('http')) return char.image;
-  return `images/${char.image}`;
+  // Legacy image field — only use if it's a data URI or remote URL
+  if (char.image && (char.image.startsWith('data:') || char.image.startsWith('http'))) {
+    return char.image;
+  }
+  return null;
 }
 
 /** Return all gallery image URLs for a character (Supabase + legacy combined) */
@@ -89,12 +90,9 @@ export function resolveGallery(char) {
   if (char.images && char.images.length > 0) {
     urls.push(...char.images);
   }
-  // Add legacy image if it exists and isn't already in the gallery
-  if (char.image) {
-    const legacy = char.image.startsWith('data:') || char.image.startsWith('http')
-      ? char.image
-      : `images/${char.image}`;
-    if (!urls.includes(legacy)) urls.push(legacy);
+  // Add legacy image only if it's a data URI or remote URL (skip local filenames)
+  if (char.image && (char.image.startsWith('data:') || char.image.startsWith('http'))) {
+    if (!urls.includes(char.image)) urls.push(char.image);
   }
   return urls;
 }
