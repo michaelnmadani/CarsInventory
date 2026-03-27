@@ -5,6 +5,7 @@ import { searchCars } from './search.js';
 import { getCarCount, getCarItems, addCarItem, removeCarItem, updateItemPhoto, getStats } from './tracker.js';
 import { compressImage, blobExtension } from './imageUtils.js';
 import { uploadImage, listImages, deleteImage as deleteRemoteImage, isSupabaseReady } from './supabase.js';
+import { initSync } from './sync.js';
 
 // ── Auth guard ────────────────────────────────────────────────
 if (!isLoggedIn()) { window.location.href = 'index.html'; }
@@ -1021,4 +1022,8 @@ onRoute('/edit/:id',   renderAddEdit);
 
 // ── Boot ──────────────────────────────────────────────────────
 renderNavbar();
-initRouter();
+
+// Load remote data before first render, then start router
+initSync().then(() => {
+  initRouter();
+});

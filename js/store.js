@@ -1,4 +1,5 @@
 import { SEED_CARS } from './data.js';
+import { syncToRemote } from './sync.js';
 
 const CUSTOM_KEY    = 'cars_custom_characters';
 const OVERRIDES_KEY = 'cars_character_overrides';
@@ -41,10 +42,12 @@ export function saveCharacter(char) {
     const { id, ...fields } = char;
     overrides[id] = fields;
     localStorage.setItem(OVERRIDES_KEY, JSON.stringify(overrides));
+    syncToRemote(OVERRIDES_KEY);
   } else {
     const customs = getCustom().filter(c => c.id !== char.id);
     customs.push({ ...char, isCustom: true });
     localStorage.setItem(CUSTOM_KEY, JSON.stringify(customs));
+    syncToRemote(CUSTOM_KEY);
   }
 }
 
@@ -54,6 +57,7 @@ export function deleteCharacter(id) {
   if (isSeed) return false;
   const customs = getCustom().filter(c => c.id !== id);
   localStorage.setItem(CUSTOM_KEY, JSON.stringify(customs));
+  syncToRemote(CUSTOM_KEY);
   return true;
 }
 

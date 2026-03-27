@@ -1,3 +1,5 @@
+import { syncToRemote } from './sync.js';
+
 const COLLECTION_KEY = 'cars_collection';
 
 /**
@@ -31,6 +33,7 @@ export function getCollection() {
 
 function save(col) {
   localStorage.setItem(COLLECTION_KEY, JSON.stringify(col));
+  syncToRemote(COLLECTION_KEY);
 }
 
 function genId() {
