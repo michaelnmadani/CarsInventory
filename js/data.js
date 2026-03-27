@@ -9,6 +9,7 @@ export const SEED_CARS = [
     friends: ["Mater", "Sally Carrera", "Doc Hudson", "Luigi", "Guido", "Ramone", "Flo"],
     quotes: ["Ka-chow!", "I am speed.", "Float like a Cadillac, sting like a Beemer.", "I'm a precision instrument of speed and aerodynamics.", "Speed. I am speed."],
     color: "#c1272d",
+    images: [],
     image: "lightning-mcqueen.png"
   },
   {
@@ -21,6 +22,7 @@ export const SEED_CARS = [
     friends: ["Lightning McQueen", "Holley Shiftwell", "Finn McMissile", "Sally Carrera"],
     quotes: ["Tuh-mater, but without the 'tuh'.", "Dad gum!", "I'm happier than a tornado in a trailer park!", "I don't need to know where I'm goin', just need to know where I've been.", "Git-R-Done!"],
     color: "#b5651d",
+    images: [],
     image: "mater.png"
   },
   {
@@ -33,6 +35,7 @@ export const SEED_CARS = [
     friends: ["Lightning McQueen", "Mater", "Flo", "Ramone"],
     quotes: ["Ka-chow.", "You've been wrong about a lot of things today, Sheriff. You could be wrong about this too.", "I fell in love. I fell in love with this."],
     color: "#5ba3cf",
+    images: [],
     image: "sally-carrera.png"
   },
   {
@@ -45,6 +48,7 @@ export const SEED_CARS = [
     friends: ["Lightning McQueen", "Sheriff", "Smokey"],
     quotes: ["All right, I wanna know who's responsible for wrecking my town, Sheriff.", "These are good folk around here, who care about one another.", "There was a lot left in me. I never got a chance to show 'em."],
     color: "#1a3c5c",
+    images: [],
     image: "doc-hudson.png"
   },
   {
@@ -57,6 +61,7 @@ export const SEED_CARS = [
     friends: [],
     quotes: ["The Piston Cup — it's mine, dude, it's mine!", "Ka-chicka! Ka-chicka!", "Hey, McQueen, that ain't gonna work on me, buddy!"],
     color: "#2d8a3e",
+    images: [],
     image: "chick-hicks.png"
   },
   {
@@ -69,6 +74,7 @@ export const SEED_CARS = [
     friends: ["Lightning McQueen", "Tex Dinoco", "Mrs. The King"],
     quotes: ["You ain't gonna win unless you got good folks behind ya.", "You just gave up the Piston Cup, you know that?"],
     color: "#1e90ff",
+    images: [],
     image: "the-king.png"
   },
   {
@@ -81,6 +87,7 @@ export const SEED_CARS = [
     friends: ["Flo", "Lightning McQueen", "Mater", "Luigi"],
     quotes: ["Nice paint job, man!", "Yeah, baby!", "Ramone will paint you up right!"],
     color: "#8b00ff",
+    images: [],
     image: "ramone.png"
   },
   {
@@ -93,6 +100,7 @@ export const SEED_CARS = [
     friends: ["Ramone", "Sally Carrera", "Lightning McQueen"],
     quotes: ["I have gas! Lots of gas!", "The finest fuel in fifty states!"],
     color: "#00b4d8",
+    images: [],
     image: "flo.png"
   },
   {
@@ -105,6 +113,7 @@ export const SEED_CARS = [
     friends: ["Guido", "Lightning McQueen", "Mater"],
     quotes: ["Pit stop!", "Luigi follow only the Ferraris.", "Tires! Tires! Beautiful tires!"],
     color: "#f0d000",
+    images: [],
     image: "luigi.png"
   },
   {
@@ -117,6 +126,7 @@ export const SEED_CARS = [
     friends: ["Luigi", "Lightning McQueen"],
     quotes: ["Pit stop!", "(speaks Italian excitedly)"],
     color: "#4fc1e8",
+    images: [],
     image: "guido.png"
   },
   {
@@ -129,6 +139,7 @@ export const SEED_CARS = [
     friends: ["Doc Hudson", "Mater", "Lightning McQueen"],
     quotes: ["Boy, you're in a heap of trouble.", "I haven't gone this fast in years!"],
     color: "#2c3e50",
+    images: [],
     image: "sheriff.png"
   },
   {
@@ -141,6 +152,7 @@ export const SEED_CARS = [
     friends: ["Fillmore", "Lightning McQueen", "Sheriff"],
     quotes: ["It's Sarge's Surplus Hut! Come in and get your genuine surplus!", "Will you turn that disrespectful junk off?!"],
     color: "#556b2f",
+    images: [],
     image: "sarge.png"
   },
   {
@@ -153,6 +165,7 @@ export const SEED_CARS = [
     friends: ["Sarge", "Lightning McQueen", "Mater"],
     quotes: ["Man, I'm telling you, it's organic fuel.", "You know, some of the best fuel comes from the Earth, man.", "Respect the classics, man."],
     color: "#2ecc71",
+    images: [],
     image: "fillmore.png"
   },
   {
@@ -165,6 +178,7 @@ export const SEED_CARS = [
     friends: ["Lightning McQueen", "Sally Carrera", "Red"],
     quotes: ["You keep talking to yourself, people will think you're crazy.", "Is that Stanley?"],
     color: "#2c3e50",
+    images: [],
     image: "lizzie.png"
   },
   {
@@ -177,6 +191,7 @@ export const SEED_CARS = [
     friends: ["Lizzie", "Lightning McQueen", "Mater"],
     quotes: ["(shy crying)"],
     color: "#e74c3c",
+    images: [],
     image: "red.png"
   },
   {
@@ -189,6 +204,7 @@ export const SEED_CARS = [
     friends: ["The King", "Lightning McQueen"],
     quotes: ["Whatever you need, you just let me know.", "I'd like you to become the new face of Dinoco."],
     color: "#d4a80a",
+    images: [],
     image: "tex-dinoco.png"
   },
   {
@@ -201,6 +217,7 @@ export const SEED_CARS = [
     friends: ["Dusty Rust-eze", "Lightning McQueen"],
     quotes: ["With a little Rust-eze, and an insane amount of luck, you too can look like me!", "We might be rusty, but we still run!"],
     color: "#d35400",
+    images: [],
     image: "rusty.png"
   },
   {
@@ -213,6 +230,7 @@ export const SEED_CARS = [
     friends: ["Rusty Rust-eze", "Lightning McQueen"],
     quotes: ["Rust-eze!", "Use Rust-eze and you too can look like us!"],
     color: "#c0392b",
+    images: [],
     image: "dusty.png"
   },
   {
@@ -225,6 +243,7 @@ export const SEED_CARS = [
     friends: ["DJ", "Wingo", "Snot Rod"],
     quotes: ["We got ourselves a live one!", "Who do you think you are?"],
     color: "#9b59b6",
+    images: [],
     image: "boost.png"
   },
   {
@@ -237,6 +256,7 @@ export const SEED_CARS = [
     friends: ["Boost", "Wingo", "Snot Rod"],
     quotes: ["Yo, DJ in the house!"],
     color: "#3498db",
+    images: [],
     image: "dj.png"
   },
   {
@@ -249,6 +269,7 @@ export const SEED_CARS = [
     friends: ["Boost", "DJ", "Snot Rod"],
     quotes: ["Check it out!"],
     color: "#27ae60",
+    images: [],
     image: "wingo.png"
   },
   {
@@ -261,6 +282,7 @@ export const SEED_CARS = [
     friends: ["Boost", "DJ", "Wingo"],
     quotes: ["Ah... ah... ACHOO!"],
     color: "#e67e22",
+    images: [],
     image: "snot-rod.png"
   },
   {
@@ -273,6 +295,7 @@ export const SEED_CARS = [
     friends: ["Holley Shiftwell", "Mater", "Lightning McQueen"],
     quotes: ["My name is Finn McMissile. British Intelligence.", "I never properly introduced myself. Finn McMissile, British Intelligence."],
     color: "#34495e",
+    images: [],
     image: "finn-mcmissile.png"
   },
   {
@@ -285,6 +308,7 @@ export const SEED_CARS = [
     friends: ["Finn McMissile", "Mater", "Lightning McQueen"],
     quotes: ["I'm Agent Shiftwell. Holley Shiftwell, from the British Intelligence.", "Mater, you saved the world!"],
     color: "#9b59b6",
+    images: [],
     image: "holley-shiftwell.png"
   },
   {
@@ -297,6 +321,7 @@ export const SEED_CARS = [
     friends: [],
     quotes: ["Francesco is triple speed!", "It's-a me, Francesco!", "No one can defeat Francesco!"],
     color: "#e74c3c",
+    images: [],
     image: "francesco-bernoulli.png"
   },
   {
@@ -309,6 +334,7 @@ export const SEED_CARS = [
     friends: ["Grem", "Acer"],
     quotes: ["The camera is actually a radiation emitter!", "You are being followed. Get the American spy!"],
     color: "#7f8c8d",
+    images: [],
     image: "professor-z.png"
   },
   {
@@ -321,6 +347,7 @@ export const SEED_CARS = [
     friends: ["Acer", "Professor Zundapp"],
     quotes: ["You wanna get squished? Then shut up!"],
     color: "#d35400",
+    images: [],
     image: "grem.png"
   },
   {
@@ -333,6 +360,7 @@ export const SEED_CARS = [
     friends: ["Grem", "Professor Zundapp"],
     quotes: ["We're lemons! Nobody likes us!"],
     color: "#2ecc71",
+    images: [],
     image: "acer.png"
   },
   {
@@ -345,6 +373,7 @@ export const SEED_CARS = [
     friends: ["Lightning McQueen"],
     quotes: [],
     color: "#c0392b",
+    images: [],
     image: "shu-todoroki.png"
   },
   {
@@ -357,6 +386,7 @@ export const SEED_CARS = [
     friends: ["Lightning McQueen"],
     quotes: [],
     color: "#1a1a2e",
+    images: [],
     image: "lewis-hamilton.png"
   },
   {
@@ -369,6 +399,7 @@ export const SEED_CARS = [
     friends: ["Mama Topolino", "Luigi", "Guido"],
     quotes: ["Whoever finds a friend, finds a treasure."],
     color: "#2c3e50",
+    images: [],
     image: "uncle-topolino.png"
   },
   {
@@ -381,6 +412,7 @@ export const SEED_CARS = [
     friends: ["Uncle Topolino", "Luigi", "Guido"],
     quotes: [],
     color: "#8e44ad",
+    images: [],
     image: "mama-topolino.png"
   },
   {
@@ -393,6 +425,7 @@ export const SEED_CARS = [
     friends: ["Lightning McQueen", "Smokey", "Mater"],
     quotes: ["Cruz Ramirez, your trainer!", "I wanted to become a racer forever. Because of you!", "I can do this!"],
     color: "#f1c40f",
+    images: [],
     image: "cruz-ramirez.png"
   },
   {
@@ -405,6 +438,7 @@ export const SEED_CARS = [
     friends: [],
     quotes: ["You have no idea what a pleasure it is for me to finally beat you.", "You know, you can't have the future if you're stuck in the past.", "Enjoy your retirement!"],
     color: "#2c3e50",
+    images: [],
     image: "jackson-storm.png"
   },
   {
@@ -417,6 +451,7 @@ export const SEED_CARS = [
     friends: ["Doc Hudson", "Lightning McQueen", "Cruz Ramirez"],
     quotes: ["All right, now you're gonna learn something new today.", "Doc saw something in you that you don't even see in yourself."],
     color: "#95a5a6",
+    images: [],
     image: "smokey.png"
   },
   {
@@ -429,6 +464,7 @@ export const SEED_CARS = [
     friends: [],
     quotes: ["Lightning McQueen is not a racer. He's a brand.", "You are a product."],
     color: "#bdc3c7",
+    images: [],
     image: "sterling.png"
   },
   {
@@ -441,6 +477,7 @@ export const SEED_CARS = [
     friends: [],
     quotes: ["You about to feel the thunder!", "I'm gonna eat you alive!"],
     color: "#f39c12",
+    images: [],
     image: "miss-fritter.png"
   },
   {
@@ -453,6 +490,7 @@ export const SEED_CARS = [
     friends: ["Chick Hicks"],
     quotes: ["Statistically speaking, Storm has a 97.6% chance of winning.", "Numbers don't lie."],
     color: "#8e44ad",
+    images: [],
     image: "natalie-certain.png"
   },
   {
@@ -465,6 +503,7 @@ export const SEED_CARS = [
     friends: ["Doc Hudson", "Smokey", "Lightning McQueen"],
     quotes: ["We had some great races back in the day."],
     color: "#1abc9c",
+    images: [],
     image: "river-scott.png"
   },
   {
@@ -477,6 +516,7 @@ export const SEED_CARS = [
     friends: ["Doc Hudson", "Smokey", "River Scott"],
     quotes: ["I had a great rivalry with the Hudson Hornet."],
     color: "#e74c3c",
+    images: [],
     image: "louise-nash.png"
   },
   {
@@ -489,6 +529,7 @@ export const SEED_CARS = [
     friends: ["Doc Hudson", "Smokey", "River Scott", "Louise Nash"],
     quotes: ["Used to run moonshine right through these hills."],
     color: "#2980b9",
+    images: [],
     image: "junior-moon.png"
   },
   {
@@ -501,6 +542,7 @@ export const SEED_CARS = [
     friends: ["Lightning McQueen", "Mater"],
     quotes: ["Hey kid, we gotta go!", "I gotta stay awake..."],
     color: "#c0392b",
+    images: [],
     image: "mack.png"
   }
 ];

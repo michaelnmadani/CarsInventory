@@ -69,11 +69,30 @@ export function slugify(name) {
   return `${base}-${i}`;
 }
 
-/** Resolve the display image src for a character */
+/** Resolve the primary display image src for a character.
+ *  Priority: first gallery image > legacy image field > null */
 export function resolveImage(char) {
+  // Check gallery images first (Supabase URLs)
+  if (char.images && char.images.length > 0) return char.images[0];
+  // Legacy single image field
   if (!char.image) return null;
-  // Base64 data URLs (user-uploaded)
-  if (char.image.startsWith('data:')) return char.image;
-  // Repo images
+  if (char.image.startsWith('data:') || char.image.startsWith('http')) return char.image;
   return `images/${char.image}`;
+}
+
+/** Return all gallery image URLs for a character (Supabase + legacy combined) */
+export function resolveGallery(char) {
+  const urls = [];
+  // Add Supabase gallery images
+  if (char.images && char.images.length > 0) {
+    urls.push(...char.images);
+  }
+  // Add legacy image if it exists and isn't already in the gallery
+  if (char.image) {
+    const legacy = char.image.startsWith('data:') || char.image.startsWith('http')
+      ? char.image
+      : `images/${char.image}`;
+    if (!urls.includes(legacy)) urls.push(legacy);
+  }
+  return urls;
 }

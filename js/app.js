@@ -1,8 +1,10 @@
 import { isLoggedIn, getAuth, clearAuth } from './auth.js';
 import { onRoute, initRouter, navigate } from './router.js';
-import { getAllCharacters, getCharacter, saveCharacter, deleteCharacter, slugify, resolveImage } from './store.js';
+import { getAllCharacters, getCharacter, saveCharacter, deleteCharacter, slugify, resolveImage, resolveGallery } from './store.js';
 import { searchCars } from './search.js';
 import { getCarCount, updateCarCount, getStats } from './tracker.js';
+import { compressImage, blobExtension } from './imageUtils.js';
+import { uploadImage, listImages, deleteImage as deleteRemoteImage, isSupabaseReady } from './supabase.js';
 
 // ── Auth guard ────────────────────────────────────────────────
 if (!isLoggedIn()) { window.location.href = 'index.html'; }
@@ -111,6 +113,90 @@ function sortCars(cars) {
     return a.name.localeCompare(b.name);
   });
 }
+
+// ── Lightbox ──────────────────────────────────────────────────
+let lightboxImages = [];
+let lightboxIndex  = 0;
+
+function openLightbox(images, startIndex = 0) {
+  lightboxImages = images;
+  lightboxIndex  = startIndex;
+
+  const existing = document.getElementById('lightbox');
+  if (existing) existing.remove();
+
+  const lb = document.createElement('div');
+  lb.className = 'lightbox';
+  lb.id = 'lightbox';
+  lb.innerHTML = `
+    <button class="lightbox-close">&times;</button>
+    <button class="lightbox-prev">&larr;</button>
+    <img class="lightbox-img" id="lightboxImg" src="${esc(images[startIndex])}">
+    <button class="lightbox-next">&rarr;</button>
+    <span class="lightbox-counter" id="lightboxCounter">${startIndex + 1} / ${images.length}</span>`;
+  document.body.appendChild(lb);
+
+  const img     = document.getElementById('lightboxImg');
+  const counter = document.getElementById('lightboxCounter');
+
+  function show(i) {
+    lightboxIndex = (i + images.length) % images.length;
+    img.src = images[lightboxIndex];
+    counter.textContent = `${lightboxIndex + 1} / ${images.length}`;
+  }
+
+  lb.querySelector('.lightbox-close').addEventListener('click', closeLightbox);
+  lb.querySelector('.lightbox-prev').addEventListener('click', () => show(lightboxIndex - 1));
+  lb.querySelector('.lightbox-next').addEventListener('click', () => show(lightboxIndex + 1));
+  lb.addEventListener('click', (e) => { if (e.target === lb) closeLightbox(); });
+
+  document.addEventListener('keydown', lightboxKeyHandler);
+}
+
+function closeLightbox() {
+  const lb = document.getElementById('lightbox');
+  if (lb) lb.remove();
+  document.removeEventListener('keydown', lightboxKeyHandler);
+}
+
+function lightboxKeyHandler(e) {
+  if (e.key === 'Escape') closeLightbox();
+  if (e.key === 'ArrowLeft')  { lightboxIndex = (lightboxIndex - 1 + lightboxImages.length) % lightboxImages.length; document.getElementById('lightboxImg').src = lightboxImages[lightboxIndex]; document.getElementById('lightboxCounter').textContent = `${lightboxIndex + 1} / ${lightboxImages.length}`; }
+  if (e.key === 'ArrowRight') { lightboxIndex = (lightboxIndex + 1) % lightboxImages.length; document.getElementById('lightboxImg').src = lightboxImages[lightboxIndex]; document.getElementById('lightboxCounter').textContent = `${lightboxIndex + 1} / ${lightboxImages.length}`; }
+}
+
+// ── Upload spinner ────────────────────────────────────────────
+function showSpinner(msg = 'Uploading...') {
+  const el = document.createElement('div');
+  el.className = 'upload-spinner';
+  el.id = 'uploadSpinner';
+  el.innerHTML = `<div class="spinner"></div><span>${esc(msg)}</span>`;
+  document.body.appendChild(el);
+}
+function hideSpinner() { document.getElementById('uploadSpinner')?.remove(); }
+
+// ── Photo upload helper ───────────────────────────────────────
+async function handlePhotoUpload(file, characterId) {
+  if (!file) return null;
+  showSpinner('Compressing & uploading...');
+  try {
+    const blob = await compressImage(file, 800, 0.7);
+    const ext  = blobExtension(blob);
+    const url  = await uploadImage(characterId, blob, ext);
+    if (!url) throw new Error('Upload failed');
+    return url;
+  } catch (err) {
+    console.error('Photo upload error:', err);
+    alert('Failed to upload image. Please try again.');
+    return null;
+  } finally {
+    hideSpinner();
+  }
+}
+
+// Camera icon SVG
+const cameraIconSVG = `<svg class="camera-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>`;
+const uploadIconSVG = `<svg class="camera-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>`;
 
 // ── Dashboard View ────────────────────────────────────────────
 function renderDashboard(appEl) {
@@ -257,12 +343,27 @@ function renderDatabase(appEl) {
 }
 
 // ── Bio View ──────────────────────────────────────────────────
-function renderBio(appEl, id) {
+async function renderBio(appEl, id) {
   const char = getCharacter(id);
   if (!char) { navigate('#/database'); return; }
 
   const cnt = getCarCount(char.id);
   const allChars = getAllCharacters();
+
+  // Build gallery: Supabase remote images + local legacy images
+  let galleryUrls = resolveGallery(char);
+
+  // Also fetch any images from Supabase that aren't in the character data yet
+  if (isSupabaseReady()) {
+    try {
+      const remoteUrls = await listImages(char.id);
+      for (const url of remoteUrls) {
+        if (!galleryUrls.includes(url)) galleryUrls.push(url);
+      }
+    } catch (e) { console.warn('Could not fetch remote gallery:', e); }
+  }
+
+  const hasGallery = galleryUrls.length > 0;
 
   appEl.innerHTML = `
     <div class="bio-page">
@@ -306,6 +407,23 @@ function renderBio(appEl, id) {
         </div>
       </div>
 
+      <div class="bio-section">
+        <h3>Photo Gallery</h3>
+        <div class="gallery-grid" id="galleryGrid">
+          ${hasGallery ? galleryUrls.map((url, i) => `
+            <div class="gallery-item" data-gallery-idx="${i}">
+              <img src="${esc(url)}" alt="" loading="lazy">
+              <button class="gallery-delete" data-gallery-url="${esc(url)}" title="Delete photo">&times;</button>
+            </div>`).join('') : '<div class="gallery-empty">No photos yet. Add one below!</div>'}
+        </div>
+        <div class="gallery-actions">
+          <button class="btn btn-sm btn-primary" id="bioUploadBtn">${uploadIconSVG} Upload Photo</button>
+          <button class="btn btn-sm btn-accent" id="bioCameraBtn">${cameraIconSVG} Take Photo</button>
+          <input type="file" accept="image/*" id="bioFileInput" hidden>
+          <input type="file" accept="image/*" capture="environment" id="bioCameraInput" hidden>
+        </div>
+      </div>
+
       ${char.bio ? `
       <div class="bio-section">
         <h3>Background</h3>
@@ -335,6 +453,55 @@ function renderBio(appEl, id) {
 
   wireTrackerButtons(appEl);
 
+  // Gallery lightbox
+  appEl.querySelectorAll('.gallery-item[data-gallery-idx]').forEach(item => {
+    item.addEventListener('click', (e) => {
+      if (e.target.closest('.gallery-delete')) return;
+      openLightbox(galleryUrls, parseInt(item.dataset.galleryIdx));
+    });
+  });
+
+  // Gallery delete
+  appEl.querySelectorAll('.gallery-delete').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      const url = btn.dataset.galleryUrl;
+      if (!confirm('Delete this photo?')) return;
+      showSpinner('Deleting...');
+      await deleteRemoteImage(url);
+      // Also remove from character's images array if present
+      if (char.images && char.images.includes(url)) {
+        char.images = char.images.filter(u => u !== url);
+        saveCharacter(char);
+      }
+      hideSpinner();
+      renderBio(appEl, id);
+    });
+  });
+
+  // Upload photo button
+  const bioFileInput   = document.getElementById('bioFileInput');
+  const bioCameraInput = document.getElementById('bioCameraInput');
+
+  document.getElementById('bioUploadBtn').addEventListener('click', () => bioFileInput.click());
+  document.getElementById('bioCameraBtn').addEventListener('click', () => bioCameraInput.click());
+
+  async function onBioPhotoSelected(file) {
+    const url = await handlePhotoUpload(file, char.id);
+    if (url) {
+      // Save URL to character's images array
+      const updated = getCharacter(char.id);
+      if (!updated.images) updated.images = [];
+      updated.images.push(url);
+      saveCharacter(updated);
+      renderBio(appEl, id);
+    }
+  }
+
+  bioFileInput.addEventListener('change', () => { if (bioFileInput.files[0]) onBioPhotoSelected(bioFileInput.files[0]); });
+  bioCameraInput.addEventListener('change', () => { if (bioCameraInput.files[0]) onBioPhotoSelected(bioCameraInput.files[0]); });
+
+  // Delete character
   const delBtn = document.getElementById('deleteCharBtn');
   if (delBtn) {
     delBtn.addEventListener('click', () => {
@@ -498,6 +665,11 @@ function renderAddEdit(appEl, editId) {
             <div class="upload-text" id="uploadText">${imgSrc ? 'Click or drag to replace image' : 'Click or drag an image here'}</div>
             <input type="file" accept="image/*" id="fImage">
           </div>
+          <div style="display:flex;gap:8px;margin-top:10px">
+            <button type="button" class="btn btn-sm btn-accent" id="formCameraBtn">${cameraIconSVG} Take Photo</button>
+            <input type="file" accept="image/*" capture="environment" id="fCamera" hidden>
+          </div>
+          <div class="form-hint">Images are compressed and uploaded to cloud storage.</div>
         </div>
 
         <div class="form-actions">
@@ -513,28 +685,28 @@ function renderAddEdit(appEl, editId) {
   colorInput.addEventListener('input', () => { colorHex.textContent = colorInput.value; });
 
   // Image upload
-  let imageData = (char && char.image && char.image.startsWith('data:')) ? char.image : '';
-  const fileInput  = document.getElementById('fImage');
-  const preview    = document.getElementById('imgPreview');
-  const uploadIcon = document.getElementById('uploadIcon');
-  const uploadText = document.getElementById('uploadText');
+  let pendingFile = null;
+  const fileInput   = document.getElementById('fImage');
+  const cameraInput = document.getElementById('fCamera');
+  const preview     = document.getElementById('imgPreview');
+  const uploadIcon  = document.getElementById('uploadIcon');
+  const uploadText  = document.getElementById('uploadText');
 
-  fileInput.addEventListener('change', () => {
-    const file = fileInput.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      imageData = e.target.result;
-      preview.src = imageData;
-      preview.style.display = 'block';
-      uploadIcon.style.display = 'none';
-      uploadText.textContent = 'Click or drag to replace image';
-    };
-    reader.readAsDataURL(file);
-  });
+  function showPreview(file) {
+    pendingFile = file;
+    const url = URL.createObjectURL(file);
+    preview.src = url;
+    preview.style.display = 'block';
+    uploadIcon.style.display = 'none';
+    uploadText.textContent = 'Image selected — will upload on save';
+  }
+
+  fileInput.addEventListener('change', () => { if (fileInput.files[0]) showPreview(fileInput.files[0]); });
+  cameraInput.addEventListener('change', () => { if (cameraInput.files[0]) showPreview(cameraInput.files[0]); });
+  document.getElementById('formCameraBtn').addEventListener('click', () => cameraInput.click());
 
   // Form submit
-  document.getElementById('charForm').addEventListener('submit', (e) => {
+  document.getElementById('charForm').addEventListener('submit', async (e) => {
     e.preventDefault();
 
     const name    = document.getElementById('fName').value.trim();
@@ -550,6 +722,18 @@ function renderAddEdit(appEl, editId) {
 
     const id = isEdit ? editId : slugify(name);
 
+    // Upload image to Supabase if a new file was selected
+    let imageUrl = isEdit && char.image ? char.image : '';
+    let imagesArr = isEdit && char.images ? [...char.images] : [];
+
+    if (pendingFile) {
+      const url = await handlePhotoUpload(pendingFile, id);
+      if (url) {
+        imagesArr.push(url);
+        imageUrl = ''; // No longer need legacy image field
+      }
+    }
+
     const charData = {
       id,
       number,
@@ -560,7 +744,8 @@ function renderAddEdit(appEl, editId) {
       friends,
       quotes,
       color,
-      image: imageData || (isEdit && char.image && !char.image.startsWith('data:') ? char.image : ''),
+      image: imageUrl,
+      images: imagesArr,
       isCustom: isEdit ? (char.isCustom || false) : true,
     };
 
