@@ -38,6 +38,13 @@ if (document.getElementById('loginForm')) {
 
     if (!username || !password) {
       err.hidden = false;
+      err.textContent = 'Please enter a username and password.';
+      return;
+    }
+
+    if (username !== 'Rosie' || password !== 'Jasper') {
+      err.hidden = false;
+      err.textContent = 'Invalid username or password.';
       return;
     }
 
