@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cars Universe Tracker</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <!-- Navbar injected by app.js -->
+  <nav class="navbar" id="navbar"></nav>
+
+  <!-- Mobile menu -->
+  <div class="mobile-menu" id="mobileMenu"></div>
+
+  <!-- All views render here -->
+  <div class="app-body">
+    <div id="app">
+      <div class="page">
+        <div class="empty-state" style="padding:100px 24px">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+          <h3>Loading...</h3>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cars Universe Tracker</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body class="login-page">
+  <div class="login-bg">
+    <div class="checkerboard"></div>
+  </div>
+
+  <main class="login-container">
+    <div class="login-card">
+      <div class="login-logo">
+        <svg width="60" height="36" viewBox="0 0 60 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="4" y="10" width="52" height="18" rx="6" fill="#c1272d"/>
+          <rect x="14" y="4" width="28" height="14" rx="4" fill="#e8333a"/>
+          <circle cx="12" cy="28" r="6" fill="#1a1a2e" stroke="#f5c518" stroke-width="2"/>
+          <circle cx="48" cy="28" r="6" fill="#1a1a2e" stroke="#f5c518" stroke-width="2"/>
+          <circle cx="12" cy="28" r="2.5" fill="#f5c518"/>
+          <circle cx="48" cy="28" r="2.5" fill="#f5c518"/>
+          <rect x="22" y="8" width="8" height="7" rx="2" fill="#a8d8ea" opacity="0.8"/>
+          <rect x="32" y="8" width="8" height="7" rx="2" fill="#a8d8ea" opacity="0.8"/>
+        </svg>
+      </div>
+      <h1 class="login-title">Cars Universe</h1>
+      <p class="login-subtitle">Collection Tracker</p>
+
+      <form class="login-form" id="loginForm">
+        <div class="form-group">
+          <label for="username">Username</label>
+          <input type="text" id="username" name="username" placeholder="Enter your name" autocomplete="username" required />
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password" placeholder="Enter password" autocomplete="current-password" required />
+        </div>
+        <div class="login-error" id="loginError" hidden>Please enter a username and password.</div>
+        <button type="submit" class="btn btn-primary btn-full btn-lg">
+          <span>Start Your Engines!</span>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M5 12h14M12 5l7 7-7 7"/>
+          </svg>
+        </button>
+      </form>
+
+      <p class="login-hint">Any username and password will work.</p>
+    </div>
+  </main>
+
+  <script src="js/auth.js" type="module"></script>
+</body>
+</html>
