@@ -590,8 +590,8 @@ input[type="color"] {
    ============================================================ */
 .cars-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(165px, 1fr));
+  gap: 14px;
 }
 
 .car-card {
@@ -612,7 +612,7 @@ input[type="color"] {
 .car-card-image {
   position: relative;
   background: var(--color-surface-alt);
-  height: 140px;
+  height: 105px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -623,40 +623,40 @@ input[type="color"] {
   width: 100%;
   height: 100%;
   object-fit: contain;
-  padding: 8px;
+  padding: 6px;
   transition: transform var(--transition);
 }
 .car-card-image:hover img { transform: scale(1.05); }
 
 .car-card-number {
   position: absolute;
-  top: 8px;
-  left: 8px;
+  top: 6px;
+  left: 6px;
   background: var(--color-secondary);
   color: var(--color-accent);
-  font-size: 0.72rem;
+  font-size: 0.62rem;
   font-weight: 800;
-  padding: 3px 8px;
+  padding: 2px 6px;
   border-radius: 12px;
   letter-spacing: 0.04em;
 }
 
 .car-card-body {
-  padding: 14px 14px 8px;
+  padding: 10px 10px 6px;
   flex: 1;
   cursor: pointer;
 }
 .car-card-name {
-  font-size: 0.97rem;
+  font-size: 0.82rem;
   font-weight: 700;
   color: var(--color-text);
-  margin-bottom: 3px;
-  line-height: 1.3;
+  margin-bottom: 2px;
+  line-height: 1.25;
 }
 .car-card-sponsor {
-  font-size: 0.78rem;
+  font-size: 0.68rem;
   color: var(--color-text-muted);
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
 .movie-tags {
@@ -666,9 +666,9 @@ input[type="color"] {
   margin-top: 4px;
 }
 .movie-tag {
-  padding: 2px 8px;
+  padding: 1px 6px;
   border-radius: 10px;
-  font-size: 0.7rem;
+  font-size: 0.6rem;
   font-weight: 700;
   letter-spacing: 0.03em;
 }
@@ -677,11 +677,11 @@ input[type="color"] {
 .movie-tag-3 { background: #f0ffe6; color: #2a8000; }
 
 .car-card-tracker {
-  padding: 10px 14px 14px;
+  padding: 7px 10px 10px;
   border-top: 1px solid var(--color-border);
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 5px;
 }
 .tracker-row {
   display: flex;
@@ -689,7 +689,7 @@ input[type="color"] {
   justify-content: space-between;
 }
 .tracker-label {
-  font-size: 0.78rem;
+  font-size: 0.68rem;
   font-weight: 700;
   color: var(--color-text-muted);
   text-transform: uppercase;
@@ -1418,60 +1418,86 @@ input[type="color"] {
 /* ============================================================
    TRACKED ITEMS LIST (My Cars section on bio)
    ============================================================ */
-.tracked-items-list {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
+.tracked-items-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 10px;
 }
-.tracked-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 8px 12px;
+.tracked-tile {
+  position: relative;
   background: var(--color-surface-alt);
-  border: 1px solid var(--color-border);
+  border: 1.5px solid var(--color-border);
   border-radius: var(--radius-md);
-  transition: background var(--transition);
+  overflow: hidden;
+  transition: transform var(--transition), box-shadow var(--transition);
 }
-.tracked-item:hover { background: var(--color-surface); }
+.tracked-tile:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
 
-.tracked-item-photo {
-  width: 44px;
-  height: 34px;
+.tracked-tile-photo {
+  width: 100%;
+  aspect-ratio: 1;
   object-fit: cover;
-  border-radius: var(--radius-sm);
-  flex-shrink: 0;
+  display: block;
 }
-.tracked-item-no-photo {
-  width: 44px;
-  height: 34px;
+.tracked-tile-no-photo {
+  width: 100%;
+  aspect-ratio: 1;
   display: flex;
   align-items: center;
   justify-content: center;
   background: var(--color-border);
-  border-radius: var(--radius-sm);
   color: var(--color-text-muted);
-  flex-shrink: 0;
 }
-.tracked-item-name {
-  flex: 1;
-  font-size: 0.88rem;
+.tracked-tile-info {
+  padding: 6px 8px;
+  border-top: 1px solid var(--color-border);
+}
+.tracked-tile-name {
+  font-size: 0.7rem;
   font-weight: 600;
   color: var(--color-text);
+  line-height: 1.25;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
-.tracked-item-remove {
-  background: none;
-  border: none;
+.tracked-tile-type {
+  font-size: 0.58rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
   color: var(--color-text-muted);
-  font-size: 1.1rem;
+}
+.tracked-tile-remove {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--color-danger);
+  color: #fff;
+  border: none;
+  font-size: 0.72rem;
   font-weight: 700;
   cursor: pointer;
-  padding: 4px 8px;
-  border-radius: var(--radius-sm);
-  transition: all var(--transition);
+  display: none;
+  align-items: center;
+  justify-content: center;
   line-height: 1;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
 }
-.tracked-item-remove:hover { color: var(--color-danger); background: var(--color-danger-bg); }
+.tracked-tile:hover .tracked-tile-remove { display: flex; }
+
+/* My Cars page — larger tiles with character name */
+.my-cars-tile-char {
+  font-size: 0.58rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 
 @media (max-width: 480px) {
   .gallery-grid { grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); }

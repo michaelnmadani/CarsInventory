@@ -24,6 +24,7 @@ function renderNavbar() {
       <a class="nav-link" href="#/dashboard" data-route="/dashboard">Dashboard</a>
       <a class="nav-link" href="#/database" data-route="/database">Database</a>
       <a class="nav-link" href="#/collection" data-route="/collection">Collection</a>
+      <a class="nav-link" href="#/mycars" data-route="/mycars">My Cars</a>
       <a class="nav-link" href="#/add" data-route="/add">+ Add Car</a>
     </div>
     <div class="navbar-actions">
@@ -575,32 +576,33 @@ async function renderBio(appEl, id) {
         const largeItems = items.filter(i => i.type === 'large');
         const miniItems  = items.filter(i => i.type === 'mini');
         if (items.length === 0) return '';
+
+        function tileHTML(item, charId) {
+          return `
+          <div class="tracked-tile">
+            ${item.photo ? `<img class="tracked-tile-photo" src="${esc(item.photo)}" alt="">` : `<div class="tracked-tile-no-photo">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+            </div>`}
+            <div class="tracked-tile-info">
+              <div class="tracked-tile-name">${esc(item.name)}</div>
+              <div class="tracked-tile-type">${esc(item.type)}</div>
+            </div>
+            <button class="tracked-tile-remove" data-remove-car="${esc(charId)}" data-remove-id="${esc(item.id)}" title="Remove">&times;</button>
+          </div>`;
+        }
+
         return `
       <div class="bio-section">
         <h3>My Cars</h3>
         ${largeItems.length > 0 ? `
-        <h4 style="margin-bottom:10px;color:var(--color-text-muted);font-size:0.78rem;text-transform:uppercase;letter-spacing:0.05em">Large Die-casts (${largeItems.length})</h4>
-        <div class="tracked-items-list">
-          ${largeItems.map(item => `
-          <div class="tracked-item">
-            ${item.photo ? `<img class="tracked-item-photo" src="${esc(item.photo)}" alt="">` : `<div class="tracked-item-no-photo">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
-            </div>`}
-            <span class="tracked-item-name">${esc(item.name)}</span>
-            <button class="tracked-item-remove" data-remove-car="${esc(char.id)}" data-remove-id="${esc(item.id)}" title="Remove">&times;</button>
-          </div>`).join('')}
+        <h4 style="margin-bottom:10px;color:var(--color-text-muted);font-size:0.72rem;text-transform:uppercase;letter-spacing:0.05em">Large Die-casts (${largeItems.length})</h4>
+        <div class="tracked-items-grid">
+          ${largeItems.map(item => tileHTML(item, char.id)).join('')}
         </div>` : ''}
         ${miniItems.length > 0 ? `
-        <h4 style="margin:${largeItems.length > 0 ? '20px' : '0'} 0 10px;color:var(--color-text-muted);font-size:0.78rem;text-transform:uppercase;letter-spacing:0.05em">Mini Die-casts (${miniItems.length})</h4>
-        <div class="tracked-items-list">
-          ${miniItems.map(item => `
-          <div class="tracked-item">
-            ${item.photo ? `<img class="tracked-item-photo" src="${esc(item.photo)}" alt="">` : `<div class="tracked-item-no-photo">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
-            </div>`}
-            <span class="tracked-item-name">${esc(item.name)}</span>
-            <button class="tracked-item-remove" data-remove-car="${esc(char.id)}" data-remove-id="${esc(item.id)}" title="Remove">&times;</button>
-          </div>`).join('')}
+        <h4 style="margin:${largeItems.length > 0 ? '20px' : '0'} 0 10px;color:var(--color-text-muted);font-size:0.72rem;text-transform:uppercase;letter-spacing:0.05em">Mini Die-casts (${miniItems.length})</h4>
+        <div class="tracked-items-grid">
+          ${miniItems.map(item => tileHTML(item, char.id)).join('')}
         </div>` : ''}
       </div>`;
       })()}
@@ -609,7 +611,7 @@ async function renderBio(appEl, id) {
   wireAddCarButtons(appEl);
 
   // Remove tracked items
-  appEl.querySelectorAll('.tracked-item-remove').forEach(btn => {
+  appEl.querySelectorAll('.tracked-tile-remove').forEach(btn => {
     btn.addEventListener('click', () => {
       const carId  = btn.dataset.removeCar;
       const itemId = btn.dataset.removeId;
@@ -937,11 +939,83 @@ function renderAddEdit(appEl, editId) {
   });
 }
 
+// ── My Cars View (global) ─────────────────────────────────────
+function renderMyCars(appEl) {
+  const allChars = getAllCharacters();
+  const collection = [];
+
+  // Gather all tracked items with photos across all characters
+  for (const char of allChars) {
+    const items = getCarItems(char.id);
+    for (const item of items) {
+      if (item.photo) {
+        collection.push({ ...item, charId: char.id, charName: char.name });
+      }
+    }
+  }
+
+  // Sort: large first, then mini; within each type, by name
+  collection.sort((a, b) => {
+    if (a.type !== b.type) return a.type === 'large' ? -1 : 1;
+    return a.name.localeCompare(b.name);
+  });
+
+  const largeItems = collection.filter(i => i.type === 'large');
+  const miniItems  = collection.filter(i => i.type === 'mini');
+
+  appEl.innerHTML = `
+    <div class="page">
+      <div class="stripe-header">
+        <h2>My Cars</h2>
+        <p>${collection.length} die-cast${collection.length !== 1 ? 's' : ''} with photos</p>
+      </div>
+
+      ${collection.length === 0 ? `
+        <div class="empty-state">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+          <h3>No photos yet</h3>
+          <p>Add die-casts with photos from any character's page to see them here.</p>
+        </div>` : ''}
+
+      ${largeItems.length > 0 ? `
+      <h4 style="margin-bottom:12px;color:var(--color-text-muted);font-size:0.78rem;text-transform:uppercase;letter-spacing:0.05em">Large Die-casts (${largeItems.length})</h4>
+      <div class="tracked-items-grid" style="margin-bottom:28px">
+        ${largeItems.map(item => `
+        <div class="tracked-tile" style="cursor:pointer" data-nav="${esc(item.charId)}">
+          <img class="tracked-tile-photo" src="${esc(item.photo)}" alt="">
+          <div class="tracked-tile-info">
+            <div class="tracked-tile-name">${esc(item.name)}</div>
+            <div class="my-cars-tile-char">${esc(item.charName)}</div>
+          </div>
+        </div>`).join('')}
+      </div>` : ''}
+
+      ${miniItems.length > 0 ? `
+      <h4 style="margin-bottom:12px;color:var(--color-text-muted);font-size:0.78rem;text-transform:uppercase;letter-spacing:0.05em">Mini Die-casts (${miniItems.length})</h4>
+      <div class="tracked-items-grid">
+        ${miniItems.map(item => `
+        <div class="tracked-tile" style="cursor:pointer" data-nav="${esc(item.charId)}">
+          <img class="tracked-tile-photo" src="${esc(item.photo)}" alt="">
+          <div class="tracked-tile-info">
+            <div class="tracked-tile-name">${esc(item.name)}</div>
+            <div class="my-cars-tile-char">${esc(item.charName)}</div>
+          </div>
+        </div>`).join('')}
+      </div>` : ''}
+    </div>`;
+
+  // Wire tile clicks to navigate to character bio
+  appEl.querySelectorAll('[data-nav]').forEach(el => {
+    el.addEventListener('click', () => navigate(`#/bio/${el.dataset.nav}`));
+  });
+}
+
 // ── Register Routes ───────────────────────────────────────────
 onRoute('/dashboard',  renderDashboard);
 onRoute('/database',   renderDatabase);
 onRoute('/bio/:id',    renderBio);
 onRoute('/collection', renderCollection);
+onRoute('/mycars',     renderMyCars);
 onRoute('/add',        (appEl) => renderAddEdit(appEl, null));
 onRoute('/edit/:id',   renderAddEdit);
 
