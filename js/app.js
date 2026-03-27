@@ -613,7 +613,9 @@ async function renderBio(appEl, id) {
               <span class="model-row-status ${isWish ? 'status-wish' : 'status-owned'}">${isWish ? 'Wishlist' : 'Owned'}</span>
             </div>
             <div class="model-row-actions">
-              ${isWish ? `<button class="model-row-mark-owned" data-car-id="${esc(charId)}" data-item-id="${esc(item.id)}" title="Mark as owned">&#10003; Own it</button>` : ''}
+              ${isWish
+                ? `<button class="model-row-mark-owned" data-car-id="${esc(charId)}" data-item-id="${esc(item.id)}" title="Mark as owned">&#10003; Own it</button>`
+                : `<button class="model-row-mark-wish" data-car-id="${esc(charId)}" data-item-id="${esc(item.id)}" title="Move to wishlist">&#9733; Wishlist</button>`}
               <button class="model-row-delete" data-car-id="${esc(charId)}" data-item-id="${esc(item.id)}" title="Delete">&times;</button>
             </div>
           </div>`;
@@ -670,6 +672,14 @@ async function renderBio(appEl, id) {
   appEl.querySelectorAll('.model-row-mark-owned').forEach(btn => {
     btn.addEventListener('click', () => {
       updateItemStatus(btn.dataset.carId, btn.dataset.itemId, 'owned');
+      renderBio(appEl, id);
+    });
+  });
+
+  // Mark owned → wishlist
+  appEl.querySelectorAll('.model-row-mark-wish').forEach(btn => {
+    btn.addEventListener('click', () => {
+      updateItemStatus(btn.dataset.carId, btn.dataset.itemId, 'unpurchased');
       renderBio(appEl, id);
     });
   });

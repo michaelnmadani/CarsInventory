@@ -1691,6 +1691,18 @@ input[type="color"] {
   white-space: nowrap;
 }
 .model-row-mark-owned:hover { background: var(--color-success); color: #fff; }
+.model-row-mark-wish {
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--color-accent);
+  background: #fff8e1;
+  color: var(--color-accent-dark);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.model-row-mark-wish:hover { background: var(--color-accent); color: var(--color-secondary); }
 .model-row-delete {
   width: 24px;
   height: 24px;
