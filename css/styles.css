@@ -401,6 +401,25 @@ input[type="color"] {
 .app-body {
   padding-top: var(--navbar-h);
   min-height: 100vh;
+  background: url('https://mfiles.alphacoders.com/101/thumb-350-1013663.png') center/cover no-repeat fixed;
+  background-color: var(--color-secondary);
+}
+.app-body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  top: var(--navbar-h);
+  background: linear-gradient(
+    180deg,
+    rgba(26, 26, 46, 0.62) 0%,
+    rgba(26, 26, 46, 0.80) 100%
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+.app-body > * {
+  position: relative;
+  z-index: 1;
 }
 
 .page {
@@ -413,10 +432,10 @@ input[type="color"] {
   margin-bottom: 28px;
 }
 .page-header h2 {
-  color: var(--color-secondary);
+  color: var(--color-text-light);
 }
 .page-header p {
-  color: var(--color-text-muted);
+  color: rgba(240,240,245,0.7);
   margin-top: 4px;
   font-size: 0.95rem;
 }
@@ -425,13 +444,16 @@ input[type="color"] {
    SECTION DIVIDER / STRIPE
    ============================================================ */
 .stripe-header {
-  background: linear-gradient(135deg, var(--color-secondary) 0%, var(--color-secondary-mid) 100%);
+  background: rgba(26, 26, 46, 0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   color: var(--color-text-light);
   padding: 28px 24px;
   border-radius: var(--radius-lg);
   margin-bottom: 28px;
   position: relative;
   overflow: hidden;
+  border: 1px solid rgba(245, 197, 24, 0.15);
 }
 .stripe-header::before {
   content: '';
@@ -446,38 +468,6 @@ input[type="color"] {
 }
 .stripe-header h2 { position: relative; z-index: 1; }
 .stripe-header p { position: relative; z-index: 1; color: rgba(240,240,245,0.7); margin-top: 4px; font-size: 0.9rem; }
-
-/* ============================================================
-   DASHBOARD BACKGROUND
-   ============================================================ */
-.dashboard-bg {
-  position: relative;
-  min-height: calc(100vh - var(--navbar-h));
-  background: url('https://mfiles.alphacoders.com/101/thumb-350-1013663.png') center/cover no-repeat fixed;
-  background-color: var(--color-secondary);
-}
-.dashboard-overlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    180deg,
-    rgba(26, 26, 46, 0.65) 0%,
-    rgba(26, 26, 46, 0.82) 100%
-  );
-}
-.dashboard-content {
-  position: relative;
-  z-index: 1;
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 36px 24px 48px;
-}
-.dashboard-header {
-  background: rgba(26, 26, 46, 0.6);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(245, 197, 24, 0.15);
-}
 
 /* ============================================================
    DASHBOARD
@@ -574,19 +564,21 @@ input[type="color"] {
   left: 12px;
   top: 50%;
   transform: translateY(-50%);
-  color: var(--color-text-muted);
+  color: rgba(240,240,245,0.5);
   pointer-events: none;
 }
 .search-input {
   width: 100%;
   padding: 10px 14px 10px 40px;
-  border: 1.5px solid var(--color-border);
+  border: 1.5px solid rgba(255,255,255,0.2);
   border-radius: var(--radius-md);
   font-size: 0.95rem;
-  background: var(--color-surface);
+  background: rgba(26, 26, 46, 0.6);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
   transition: border-color var(--transition), box-shadow var(--transition);
   outline: none;
-  color: var(--color-text);
+  color: var(--color-text-light);
 }
 .search-input:focus {
   border-color: var(--color-primary);
@@ -603,7 +595,8 @@ input[type="color"] {
 .filter-chip {
   padding: 6px 14px;
   border-radius: 20px;
-  border: 1.5px solid var(--color-border);
+  border: 1.5px solid rgba(255,255,255,0.25);
+  color: var(--color-text-light);
   background: var(--color-surface);
   font-size: 0.82rem;
   font-weight: 600;
@@ -616,7 +609,7 @@ input[type="color"] {
 
 .results-count {
   font-size: 0.83rem;
-  color: var(--color-text-muted);
+  color: rgba(240,240,245,0.6);
   font-weight: 500;
   margin-bottom: 16px;
 }
@@ -1101,10 +1094,10 @@ input[type="color"] {
 .empty-state {
   text-align: center;
   padding: 60px 24px;
-  color: var(--color-text-muted);
+  color: rgba(240,240,245,0.6);
 }
-.empty-state svg { color: var(--color-border); margin: 0 auto 16px; display: block; }
-.empty-state h3 { font-size: 1.1rem; color: var(--color-text); margin-bottom: 6px; }
+.empty-state svg { color: rgba(240,240,245,0.3); margin: 0 auto 16px; display: block; }
+.empty-state h3 { font-size: 1.1rem; color: var(--color-text-light); margin-bottom: 6px; }
 .empty-state p { font-size: 0.9rem; }
 
 /* ============================================================
