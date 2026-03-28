@@ -619,8 +619,8 @@ input[type="color"] {
    ============================================================ */
 .cars-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(165px, 1fr));
-  gap: 14px;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 10px;
 }
 
 .car-card {
@@ -641,7 +641,7 @@ input[type="color"] {
 .car-card-image {
   position: relative;
   background: var(--color-surface-alt);
-  height: 105px;
+  height: 90px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -707,37 +707,20 @@ input[type="color"] {
 .movie-tag-4 { background: #fff0e6; color: #c45500; }
 
 .car-card-tracker {
-  padding: 7px 10px 10px;
+  padding: 5px 8px 6px;
   border-top: 1px solid var(--color-border);
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-.tracker-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-.tracker-label {
-  font-size: 0.68rem;
-  font-weight: 700;
-  color: var(--color-text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-.tracker-controls {
   display: flex;
   align-items: center;
   gap: 8px;
 }
-.tracker-count {
-  min-width: 28px;
-  text-align: center;
-  font-size: 1rem;
-  font-weight: 800;
-  color: var(--color-text);
+.tracker-inline {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
 }
-.tracker-count.has-items { color: var(--color-primary); }
+.tracker-inline.has-items { color: var(--color-primary); font-weight: 800; }
 
 /* CSS car silhouette fallback */
 .car-silhouette {
@@ -1172,7 +1155,7 @@ input[type="color"] {
 
 @media (max-width: 480px) {
   .page { padding: 20px 12px; }
-  .cars-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
+  .cars-grid { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 8px; }
   .stripe-header { padding: 20px 16px; }
   .stats-grid { grid-template-columns: repeat(2, 1fr); }
 

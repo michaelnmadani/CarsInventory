@@ -448,14 +448,8 @@ function updateDatabaseGrid(appEl) {
             <div class="movie-tags">${movieTagsHTML(car.movies)}</div>
           </div>
           <div class="car-card-tracker">
-            <div class="tracker-row">
-              <span class="tracker-label">Large</span>
-              ${trackerHTML(car.id, 'large', cnt.large)}
-            </div>
-            <div class="tracker-row">
-              <span class="tracker-label">Mini</span>
-              ${trackerHTML(car.id, 'mini', cnt.mini)}
-            </div>
+            <span class="tracker-inline ${cnt.large > 0 ? 'has-items' : ''}">L: ${cnt.large}</span>
+            <span class="tracker-inline ${cnt.mini > 0 ? 'has-items' : ''}">M: ${cnt.mini}</span>
           </div>
         </div>`;
       }).join('')}
