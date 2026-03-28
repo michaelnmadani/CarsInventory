@@ -4,7 +4,7 @@ import { getAllCharacters, getCharacter, saveCharacter, deleteCharacter, slugify
 import { searchCars } from './search.js';
 import { getCarCount, getCarItems, addCarItem, removeCarItem, updateItemPhoto, updateItemStatus, getStats, getAllItems } from './tracker.js';
 import { compressImage, blobExtension } from './imageUtils.js';
-import { uploadImage, listImages, deleteImage as deleteRemoteImage, isSupabaseReady } from './supabase.js';
+import { uploadImage, listImages, deleteImage as deleteRemoteImage, isSupabaseReady, listAllImages, uploadToPath } from './supabase.js';
 import { initSync } from './sync.js';
 
 // ── Auth guard ────────────────────────────────────────────────
@@ -357,8 +357,78 @@ function renderDashboard(appEl) {
         <a class="btn btn-primary" href="#/database">Browse Database</a>
         <a class="btn btn-secondary" href="#/collection">View Collection</a>
         <a class="btn btn-accent" href="#/add">+ Add Character</a>
+        <button class="btn btn-ghost" id="compressAllBtn">Compress Images</button>
       </div>
+      <div id="compressStatus" class="compress-status" style="display:none"></div>
     </div>`;
+
+  document.getElementById('compressAllBtn').addEventListener('click', compressAllSupabaseImages);
+}
+
+async function compressAllSupabaseImages() {
+  const statusEl = document.getElementById('compressStatus');
+  const btn      = document.getElementById('compressAllBtn');
+  if (!statusEl || !btn) return;
+
+  if (!confirm('This will re-compress all images stored in Supabase. Continue?')) return;
+
+  btn.disabled = true;
+  btn.textContent = 'Compressing...';
+  statusEl.style.display = 'block';
+  statusEl.textContent = 'Listing all images...';
+
+  try {
+    const allFiles = await listAllImages();
+    if (allFiles.length === 0) {
+      statusEl.textContent = 'No images found in storage.';
+      btn.disabled = false;
+      btn.textContent = 'Compress Images';
+      return;
+    }
+
+    let done = 0, skipped = 0, failed = 0;
+    statusEl.textContent = `Found ${allFiles.length} images. Starting compression...`;
+
+    for (const file of allFiles) {
+      try {
+        // Download the image
+        const resp = await fetch(file.url);
+        if (!resp.ok) { skipped++; continue; }
+        const origBlob = await resp.blob();
+
+        // Skip non-image files
+        if (!origBlob.type.startsWith('image/')) { skipped++; continue; }
+
+        // Compress
+        const compressed = await compressImage(origBlob, 600, 0.55);
+
+        // Only re-upload if actually smaller
+        if (compressed.size < origBlob.size) {
+          const ok = await uploadToPath(file.path, compressed);
+          if (ok) {
+            done++;
+            const saved = Math.round((1 - compressed.size / origBlob.size) * 100);
+            statusEl.textContent = `${done + skipped + failed}/${allFiles.length} — Compressed ${file.path} (${saved}% smaller)`;
+          } else {
+            failed++;
+          }
+        } else {
+          skipped++;
+          statusEl.textContent = `${done + skipped + failed}/${allFiles.length} — Skipped ${file.path} (already optimal)`;
+        }
+      } catch (e) {
+        console.error(`Failed to compress ${file.path}:`, e);
+        failed++;
+      }
+    }
+
+    statusEl.textContent = `Done! ${done} compressed, ${skipped} skipped (already small), ${failed} failed.`;
+  } catch (err) {
+    statusEl.textContent = `Error: ${err.message}`;
+  }
+
+  btn.disabled = false;
+  btn.textContent = 'Compress Images';
 }
 
 // ── Database View ─────────────────────────────────────────────

@@ -124,3 +124,64 @@ function extractPath(url) {
 export function isSupabaseReady() {
   return getClient() !== null;
 }
+
+/**
+ * List all image files across all character folders.
+ * @returns {Promise<{path: string, url: string}[]>} Array of {path, url}
+ */
+export async function listAllImages() {
+  const client = getClient();
+  if (!client) return [];
+
+  // List top-level folders
+  const { data: folders, error: fErr } = await client.storage
+    .from(BUCKET)
+    .list('', { limit: 1000 });
+
+  if (fErr || !folders) return [];
+
+  const results = [];
+  for (const folder of folders) {
+    if (!folder.id && folder.name) {
+      // It's a folder — list its contents
+      const { data: files } = await client.storage
+        .from(BUCKET)
+        .list(folder.name, { limit: 1000 });
+
+      if (files) {
+        for (const f of files) {
+          if (f.name && !f.name.startsWith('.')) {
+            const path = `${folder.name}/${f.name}`;
+            results.push({ path, url: getPublicUrl(path) });
+          }
+        }
+      }
+    }
+  }
+  return results;
+}
+
+/**
+ * Upload a blob to a specific storage path (overwrite).
+ * @param {string} path - Storage path
+ * @param {Blob} blob - Image blob
+ * @returns {Promise<boolean>} Success
+ */
+export async function uploadToPath(path, blob) {
+  const client = getClient();
+  if (!client) return false;
+
+  const { error } = await client.storage
+    .from(BUCKET)
+    .update(path, blob, {
+      contentType: blob.type || 'image/webp',
+      cacheControl: '31536000',
+      upsert: true,
+    });
+
+  if (error) {
+    console.error('Supabase overwrite error:', error.message);
+    return false;
+  }
+  return true;
+}
