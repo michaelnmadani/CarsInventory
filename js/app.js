@@ -64,7 +64,7 @@ function logout() { clearAuth(); window.location.href = 'index.html'; }
 function carImageHTML(char, cls = '') {
   const src = resolveImage(char);
   if (src) {
-    return `<img src="${esc(src)}" alt="${esc(char.name)}" class="${cls}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+    return `<img src="${esc(src)}" alt="${esc(char.name)}" class="${cls}" loading="lazy" decoding="async" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
             <div class="car-silhouette" style="--car-color:${esc(char.color || '#c1272d')};display:none">
               <div class="car-cabin"></div><div class="car-window"></div><div class="car-body"></div>
               <div class="car-wheel wheel-rear"></div><div class="car-wheel wheel-front"></div>
@@ -293,7 +293,7 @@ async function handlePhotoUpload(file, characterId) {
   if (!file) return null;
   showSpinner('Compressing & uploading...');
   try {
-    const blob = await compressImage(file, 800, 0.7);
+    const blob = await compressImage(file, 600, 0.55);
     const ext  = blobExtension(blob);
     const url  = await uploadImage(characterId, blob, ext);
     if (!url) throw new Error('Upload failed');
@@ -602,7 +602,7 @@ async function renderBio(appEl, id) {
           <div class="model-row ${isWish ? 'model-row-wish' : ''}">
             <div class="model-row-photo-wrap">
               ${item.photo
-                ? `<img class="model-row-photo" src="${esc(item.photo)}" alt="">`
+                ? `<img class="model-row-photo" src="${esc(item.photo)}" alt="" loading="lazy" decoding="async">`
                 : `<div class="model-row-no-photo"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg></div>`}
               <button class="model-row-change-photo" data-car-id="${esc(charId)}" data-item-id="${esc(item.id)}" title="Change photo">&#128247;</button>
               <input type="file" accept="image/*" class="model-row-file-input" hidden>
@@ -866,7 +866,7 @@ function renderCollection(appEl) {
               return `
               <tr class="${owned ? 'owned' : ''}" data-nav="${esc(car.id)}">
                 <td class="col-thumb">
-                  ${src ? `<img class="thumb-img" src="${esc(src)}" alt="" onerror="this.style.display='none'">` :
+                  ${src ? `<img class="thumb-img" src="${esc(src)}" alt="" loading="lazy" decoding="async" onerror="this.style.display='none'">` :
                     `<div style="width:48px;height:36px;background:${esc(car.color || '#ccc')};border-radius:4px"></div>`}
                 </td>
                 <td class="col-number">${esc(car.number || 'N/A')}</td>
@@ -1107,9 +1107,9 @@ function renderMyCars(appEl) {
     return `
     <div class="allcars-tile ${isWish ? 'allcars-tile-wish' : ''}" data-nav="${esc(item.carId)}">
       ${item.photo
-        ? `<img class="allcars-tile-photo" src="${esc(item.photo)}" alt="">`
+        ? `<img class="allcars-tile-photo" src="${esc(item.photo)}" alt="" loading="lazy" decoding="async">`
         : item.charImg
-          ? `<img class="allcars-tile-photo" src="${esc(item.charImg)}" alt="">`
+          ? `<img class="allcars-tile-photo" src="${esc(item.charImg)}" alt="" loading="lazy" decoding="async">`
           : `<div class="allcars-tile-no-photo"></div>`}
       <div class="allcars-tile-info">
         <div class="allcars-tile-name">${esc(item.name)}</div>
