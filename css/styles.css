@@ -843,6 +843,24 @@ input[type="color"] {
   margin-bottom: 14px;
 }
 .bio-movies { margin-bottom: 20px; }
+.bio-movies-select {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+.movie-chip {
+  padding: 4px 10px;
+  border-radius: 99px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  cursor: pointer;
+  border: 1.5px solid transparent;
+  opacity: 0.4;
+  transition: all var(--transition);
+}
+.movie-chip.active { opacity: 1; }
+.movie-chip:not(.active):hover { opacity: 0.7; }
 
 .bio-tracker-box {
   background: var(--color-surface-alt);

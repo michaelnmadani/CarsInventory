@@ -506,7 +506,13 @@ async function renderBio(appEl, id) {
           ${char.number ? `<span class="bio-number-badge">#${esc(char.number)}</span>` : ''}
           <h1 class="bio-name">${esc(char.name)}</h1>
           ${char.sponsor ? `<div class="bio-sponsor">${esc(char.sponsor)}</div>` : ''}
-          <div class="bio-movies movie-tags">${movieTagsHTML(char.movies)}</div>
+          <div class="bio-movies-select">
+            ${['Cars','Cars 2','Cars 3','COTR'].map(m => {
+              const active = (char.movies || []).includes(m);
+              const n = m === 'Cars' ? 1 : m === 'Cars 2' ? 2 : m === 'Cars 3' ? 3 : 4;
+              return `<button class="movie-chip movie-tag-${n} ${active ? 'active' : ''}" data-movie="${esc(m)}">${esc(m)}</button>`;
+            }).join('')}
+          </div>
 
           <div class="bio-tracker-box mt-2">
             <h4>My Collection</h4>
@@ -639,6 +645,22 @@ async function renderBio(appEl, id) {
     </div>`;
 
   wireAddCarButtons(appEl);
+
+  // Movie selection chips
+  appEl.querySelectorAll('.movie-chip').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const movie = btn.dataset.movie;
+      const updated = getCharacter(id);
+      if (!updated.movies) updated.movies = [];
+      if (updated.movies.includes(movie)) {
+        updated.movies = updated.movies.filter(m => m !== movie);
+      } else {
+        updated.movies.push(movie);
+      }
+      saveCharacter(updated);
+      btn.classList.toggle('active');
+    });
+  });
 
   // Remove tracked items (old tile style, kept for safety)
   appEl.querySelectorAll('.tracked-tile-remove').forEach(btn => {
