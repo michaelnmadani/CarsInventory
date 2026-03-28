@@ -843,7 +843,7 @@ input[type="color"] {
 .bio-name {
   font-size: clamp(1.5rem, 4vw, 2rem);
   font-weight: 800;
-  color: var(--color-secondary);
+  color: var(--color-text-light);
   margin-bottom: 4px;
 }
 .bio-sponsor {
