@@ -79,7 +79,7 @@ function carImageHTML(char, cls = '') {
 
 function movieTagsHTML(movies) {
   return (movies || []).map(m => {
-    const n = m === 'Cars' ? 1 : m === 'Cars 2' ? 2 : 3;
+    const n = m === 'Cars' ? 1 : m === 'Cars 2' ? 2 : m === 'Cars 3' ? 3 : 4;
     return `<span class="movie-tag movie-tag-${n}">${esc(m)}</span>`;
   }).join('');
 }
@@ -388,6 +388,7 @@ function renderDatabase(appEl) {
             <button class="filter-chip ${dbMovie === 'Cars' ? 'active' : ''}" data-movie="Cars">Cars</button>
             <button class="filter-chip ${dbMovie === 'Cars 2' ? 'active' : ''}" data-movie="Cars 2">Cars 2</button>
             <button class="filter-chip ${dbMovie === 'Cars 3' ? 'active' : ''}" data-movie="Cars 3">Cars 3</button>
+            <button class="filter-chip ${dbMovie === 'COTR' ? 'active' : ''}" data-movie="COTR">COTR</button>
           </div>
         </div>
 
@@ -438,12 +439,11 @@ function updateDatabaseGrid(appEl) {
         <div class="car-card" data-id="${esc(car.id)}">
           <div class="car-card-image" data-nav="${esc(car.id)}">
             ${car.number ? `<span class="car-card-number">#${esc(car.number)}</span>` : ''}
-            ${car.isCustom ? '<span class="badge badge-custom" style="position:absolute;top:8px;right:8px">Custom</span>' : ''}
             ${carImageHTML(car)}
           </div>
           <div class="car-card-body" data-nav="${esc(car.id)}">
             <div class="car-card-name">${esc(car.name)}</div>
-            <div class="car-card-sponsor">${esc(car.sponsor || 'Unknown')}</div>
+            ${car.sponsor ? `<div class="car-card-sponsor">${esc(car.sponsor)}</div>` : ''}
             <div class="movie-tags">${movieTagsHTML(car.movies)}</div>
           </div>
           <div class="car-card-tracker">
@@ -509,9 +509,8 @@ async function renderBio(appEl, id) {
         </div>
         <div class="bio-meta">
           ${char.number ? `<span class="bio-number-badge">#${esc(char.number)}</span>` : ''}
-          ${char.isCustom ? ' <span class="badge badge-custom">Custom</span>' : ''}
           <h1 class="bio-name">${esc(char.name)}</h1>
-          <div class="bio-sponsor">${esc(char.sponsor || 'Unknown')}</div>
+          ${char.sponsor ? `<div class="bio-sponsor">${esc(char.sponsor)}</div>` : ''}
           <div class="bio-movies movie-tags">${movieTagsHTML(char.movies)}</div>
 
           <div class="bio-tracker-box mt-2">
@@ -919,6 +918,7 @@ function renderAddEdit(appEl, editId) {
           <div class="checkbox-group">
             <label class="checkbox-label"><input type="checkbox" name="movies" value="Cars" ${f.movies.includes('Cars') ? 'checked' : ''}> Cars</label>
             <label class="checkbox-label"><input type="checkbox" name="movies" value="Cars 2" ${f.movies.includes('Cars 2') ? 'checked' : ''}> Cars 2</label>
+            <label class="checkbox-label"><input type="checkbox" name="movies" value="COTR" ${f.movies.includes('COTR') ? 'checked' : ''}> COTR</label>
             <label class="checkbox-label"><input type="checkbox" name="movies" value="Cars 3" ${f.movies.includes('Cars 3') ? 'checked' : ''}> Cars 3</label>
           </div>
         </div>
