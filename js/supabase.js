@@ -162,7 +162,7 @@ export async function listAllImages() {
 }
 
 /**
- * Upload a blob to a specific storage path (overwrite).
+ * Upload a blob to a specific storage path (delete + re-upload).
  * @param {string} path - Storage path
  * @param {Blob} blob - Image blob
  * @returns {Promise<boolean>} Success
@@ -171,9 +171,13 @@ export async function uploadToPath(path, blob) {
   const client = getClient();
   if (!client) return false;
 
+  // Delete existing file first
+  await client.storage.from(BUCKET).remove([path]);
+
+  // Re-upload with same path
   const { error } = await client.storage
     .from(BUCKET)
-    .update(path, blob, {
+    .upload(path, blob, {
       contentType: blob.type || 'image/webp',
       cacheControl: '31536000',
       upsert: true,

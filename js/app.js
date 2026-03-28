@@ -393,14 +393,15 @@ async function compressAllSupabaseImages() {
       try {
         // Download the image
         const resp = await fetch(file.url);
-        if (!resp.ok) { skipped++; continue; }
+        if (!resp.ok) { failed++; statusEl.textContent = `${done + skipped + failed}/${allFiles.length} — Failed to download ${file.path} (${resp.status})`; continue; }
         const origBlob = await resp.blob();
 
-        // Skip non-image files
-        if (!origBlob.type.startsWith('image/')) { skipped++; continue; }
+        // Skip non-image files (treat unknown type as image)
+        if (origBlob.type && !origBlob.type.startsWith('image/')) { skipped++; continue; }
 
-        // Compress
-        const compressed = await compressImage(origBlob, 600, 0.55);
+        // Compress — pass as File to ensure Image() can load it
+        const imageBlob = new Blob([origBlob], { type: origBlob.type || 'image/jpeg' });
+        const compressed = await compressImage(imageBlob, 600, 0.55);
 
         // Only re-upload if actually smaller
         if (compressed.size < origBlob.size) {
@@ -411,6 +412,7 @@ async function compressAllSupabaseImages() {
             statusEl.textContent = `${done + skipped + failed}/${allFiles.length} — Compressed ${file.path} (${saved}% smaller)`;
           } else {
             failed++;
+            statusEl.textContent = `${done + skipped + failed}/${allFiles.length} — Upload failed for ${file.path}`;
           }
         } else {
           skipped++;
@@ -419,6 +421,7 @@ async function compressAllSupabaseImages() {
       } catch (e) {
         console.error(`Failed to compress ${file.path}:`, e);
         failed++;
+        statusEl.textContent = `${done + skipped + failed}/${allFiles.length} — Error: ${file.path} (${e.message})`;
       }
     }
 
