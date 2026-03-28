@@ -1067,6 +1067,7 @@ function renderAddEdit(appEl, editId) {
 // ── My Cars View (global) ─────────────────────────────────────
 let acStatusFilter = 'all'; // all | owned | wishlist
 let acTypeFilter   = 'all'; // all | large | mini
+let acSearch       = '';
 
 function renderMyCars(appEl) {
   const allChars = getAllCharacters();
@@ -1085,6 +1086,10 @@ function renderMyCars(appEl) {
   if (acStatusFilter === 'wishlist') items = items.filter(i => i.status === 'unpurchased');
   if (acTypeFilter === 'large')      items = items.filter(i => i.type === 'large');
   if (acTypeFilter === 'mini')       items = items.filter(i => i.type === 'mini');
+  if (acSearch) {
+    const q = acSearch.toLowerCase();
+    items = items.filter(i => i.name.toLowerCase().includes(q) || i.charName.toLowerCase().includes(q));
+  }
 
   // Sort: owned first, then type, then character name
   items.sort((a, b) => {
@@ -1125,6 +1130,7 @@ function renderMyCars(appEl) {
       </div>
 
       <div class="allcars-filters">
+        <input class="allcars-search" id="acSearchInput" type="text" placeholder="Search..." value="${esc(acSearch)}">
         <select class="allcars-select" id="acStatusFilter">
           <option value="all" ${acStatusFilter === 'all' ? 'selected' : ''}>All Status</option>
           <option value="owned" ${acStatusFilter === 'owned' ? 'selected' : ''}>Owned</option>
@@ -1148,6 +1154,14 @@ function renderMyCars(appEl) {
           ${items.map(itemTileHTML).join('')}
         </div>`}
     </div>`;
+
+  // Search input
+  let acDebounce;
+  document.getElementById('acSearchInput').addEventListener('input', (e) => {
+    acSearch = e.target.value;
+    clearTimeout(acDebounce);
+    acDebounce = setTimeout(() => renderMyCars(appEl), 200);
+  });
 
   // Dropdown filters
   document.getElementById('acStatusFilter').addEventListener('change', (e) => {
