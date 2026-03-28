@@ -40,6 +40,7 @@ function renderNavbar() {
     <a class="nav-link" href="#/dashboard" data-route="/dashboard">Dashboard</a>
     <a class="nav-link" href="#/database" data-route="/database">Database</a>
     <a class="nav-link" href="#/collection" data-route="/collection">Collection</a>
+    <a class="nav-link" href="#/mycars" data-route="/mycars">All Cars</a>
     <a class="nav-link" href="#/add" data-route="/add">+ Add Car</a>
     <div class="navbar-user">Signed in as <strong>${auth ? auth.username : ''}</strong></div>
     <button class="btn btn-sm btn-ghost" id="logoutBtnMobile" style="margin-top:8px">Logout</button>`;
@@ -1048,7 +1049,8 @@ function renderAddEdit(appEl, editId) {
 }
 
 // ── My Cars View (global) ─────────────────────────────────────
-let allCarsFilter = 'all'; // all | owned | wishlist | large | mini
+let acStatusFilter = 'all'; // all | owned | wishlist
+let acTypeFilter   = 'all'; // all | large | mini
 
 function renderMyCars(appEl) {
   const allChars = getAllCharacters();
@@ -1062,11 +1064,11 @@ function renderMyCars(appEl) {
     charImg:  charMap[item.carId] ? resolveImage(charMap[item.carId]) : null,
   }));
 
-  // Apply filter
-  if (allCarsFilter === 'owned')    items = items.filter(i => i.status !== 'unpurchased');
-  if (allCarsFilter === 'wishlist') items = items.filter(i => i.status === 'unpurchased');
-  if (allCarsFilter === 'large')    items = items.filter(i => i.type === 'large');
-  if (allCarsFilter === 'mini')     items = items.filter(i => i.type === 'mini');
+  // Apply filters
+  if (acStatusFilter === 'owned')    items = items.filter(i => i.status !== 'unpurchased');
+  if (acStatusFilter === 'wishlist') items = items.filter(i => i.status === 'unpurchased');
+  if (acTypeFilter === 'large')      items = items.filter(i => i.type === 'large');
+  if (acTypeFilter === 'mini')       items = items.filter(i => i.type === 'mini');
 
   // Sort: owned first, then type, then character name
   items.sort((a, b) => {
@@ -1078,9 +1080,6 @@ function renderMyCars(appEl) {
   const allItems = getAllItems();
   const totalOwned = allItems.filter(i => i.status !== 'unpurchased').length;
   const totalWish  = allItems.filter(i => i.status === 'unpurchased').length;
-
-  const filters = ['all','owned','wishlist','large','mini'];
-  const filterLabels = { all: 'All', owned: 'Owned', wishlist: 'Wishlist', large: 'Large', mini: 'Mini' };
 
   function itemTileHTML(item) {
     const isWish = item.status === 'unpurchased';
@@ -1109,10 +1108,18 @@ function renderMyCars(appEl) {
         <p>${totalOwned} owned · ${totalWish} wishlist</p>
       </div>
 
-      <div class="filter-chips" style="margin-bottom:20px">
-        ${filters.map(f => `
-          <button class="filter-chip ${allCarsFilter === f ? 'active' : ''}" data-filter="${f}">${filterLabels[f]}</button>
-        `).join('')}
+      <div class="allcars-filters">
+        <select class="allcars-select" id="acStatusFilter">
+          <option value="all" ${acStatusFilter === 'all' ? 'selected' : ''}>All Status</option>
+          <option value="owned" ${acStatusFilter === 'owned' ? 'selected' : ''}>Owned</option>
+          <option value="wishlist" ${acStatusFilter === 'wishlist' ? 'selected' : ''}>Wishlist</option>
+        </select>
+        <select class="allcars-select" id="acTypeFilter">
+          <option value="all" ${acTypeFilter === 'all' ? 'selected' : ''}>All Types</option>
+          <option value="large" ${acTypeFilter === 'large' ? 'selected' : ''}>Large</option>
+          <option value="mini" ${acTypeFilter === 'mini' ? 'selected' : ''}>Mini</option>
+        </select>
+        <span class="allcars-count">${items.length} result${items.length !== 1 ? 's' : ''}</span>
       </div>
 
       ${items.length === 0 ? `
@@ -1126,12 +1133,14 @@ function renderMyCars(appEl) {
         </div>`}
     </div>`;
 
-  // Filter buttons
-  appEl.querySelectorAll('[data-filter]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      allCarsFilter = btn.dataset.filter;
-      renderMyCars(appEl);
-    });
+  // Dropdown filters
+  document.getElementById('acStatusFilter').addEventListener('change', (e) => {
+    acStatusFilter = e.target.value;
+    renderMyCars(appEl);
+  });
+  document.getElementById('acTypeFilter').addEventListener('change', (e) => {
+    acTypeFilter = e.target.value;
+    renderMyCars(appEl);
   });
 
   // Navigate to character bio on tile click
