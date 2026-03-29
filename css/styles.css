@@ -1763,6 +1763,56 @@ input[type="color"] {
 /* ============================================================
    ALL CARS PAGE
    ============================================================ */
+/* Character groups */
+.allcars-group {
+  margin-bottom: 24px;
+}
+.allcars-group-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  padding: 8px 12px;
+  background: rgba(26, 26, 46, 0.5);
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(255,255,255,0.1);
+}
+.allcars-group-header:hover {
+  background: rgba(26, 26, 46, 0.7);
+}
+.allcars-group-img {
+  width: 36px;
+  height: 28px;
+  object-fit: contain;
+  border-radius: var(--radius-sm);
+  background: rgba(255,255,255,0.1);
+  flex-shrink: 0;
+}
+.allcars-group-img-empty {
+  width: 36px;
+  height: 28px;
+  border-radius: var(--radius-sm);
+  background: rgba(255,255,255,0.08);
+  flex-shrink: 0;
+}
+.allcars-group-name {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--color-text-light);
+  flex: 1;
+}
+.allcars-group-count {
+  font-size: 0.72rem;
+  font-weight: 700;
+  background: var(--color-primary);
+  color: #fff;
+  border-radius: 99px;
+  padding: 2px 8px;
+  min-width: 22px;
+  text-align: center;
+}
+
 .allcars-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));

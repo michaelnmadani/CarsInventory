@@ -1164,12 +1164,24 @@ function renderMyCars(appEl) {
     items = items.filter(i => i.name.toLowerCase().includes(q) || i.charName.toLowerCase().includes(q));
   }
 
-  // Sort: owned first, then type, then character name
+  // Sort by character name, then owned first, then type
   items.sort((a, b) => {
+    if (a.charName !== b.charName) return a.charName.localeCompare(b.charName);
     if (a.status !== b.status) return a.status === 'unpurchased' ? 1 : -1;
     if (a.type !== b.type) return a.type === 'large' ? -1 : 1;
-    return a.charName.localeCompare(b.charName);
+    return a.name.localeCompare(b.name);
   });
+
+  // Group by character
+  const groups = [];
+  let currentGroup = null;
+  for (const item of items) {
+    if (!currentGroup || currentGroup.carId !== item.carId) {
+      currentGroup = { carId: item.carId, charName: item.charName, charImg: item.charImg, items: [] };
+      groups.push(currentGroup);
+    }
+    currentGroup.items.push(item);
+  }
 
   const allItems = getAllItems();
   const totalOwned = allItems.filter(i => i.status !== 'unpurchased').length;
@@ -1178,19 +1190,30 @@ function renderMyCars(appEl) {
   function itemTileHTML(item) {
     const isWish = item.status === 'unpurchased';
     return `
-    <div class="allcars-tile ${isWish ? 'allcars-tile-wish' : ''}" data-nav="${esc(item.carId)}">
+    <div class="allcars-tile ${isWish ? 'allcars-tile-wish' : ''}">
       ${item.photo
         ? `<img class="allcars-tile-photo" src="${esc(item.photo)}" alt="" loading="lazy" decoding="async">`
-        : item.charImg
-          ? `<img class="allcars-tile-photo" src="${esc(item.charImg)}" alt="" loading="lazy" decoding="async">`
-          : `<div class="allcars-tile-no-photo"></div>`}
+        : `<div class="allcars-tile-no-photo"></div>`}
       <div class="allcars-tile-info">
         <div class="allcars-tile-name">${esc(item.name)}</div>
-        <div class="allcars-tile-char">${esc(item.charName)}</div>
         <div class="allcars-tile-badges">
           <span class="allcars-type-badge">${esc(item.type)}</span>
           <span class="allcars-status-badge ${isWish ? 'wish' : 'owned'}">${isWish ? 'Wishlist' : 'Owned'}</span>
         </div>
+      </div>
+    </div>`;
+  }
+
+  function groupHTML(group) {
+    return `
+    <div class="allcars-group">
+      <div class="allcars-group-header" data-nav="${esc(group.carId)}">
+        ${group.charImg ? `<img class="allcars-group-img" src="${esc(group.charImg)}" alt="" loading="lazy" decoding="async">` : `<div class="allcars-group-img-empty"></div>`}
+        <span class="allcars-group-name">${esc(group.charName)}</span>
+        <span class="allcars-group-count">${group.items.length}</span>
+      </div>
+      <div class="allcars-grid">
+        ${group.items.map(itemTileHTML).join('')}
       </div>
     </div>`;
   }
@@ -1217,15 +1240,13 @@ function renderMyCars(appEl) {
         <span class="allcars-count">${items.length} result${items.length !== 1 ? 's' : ''}</span>
       </div>
 
-      ${items.length === 0 ? `
+      ${groups.length === 0 ? `
         <div class="empty-state">
           <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/></svg>
           <h3>No die-casts here</h3>
           <p>Add die-casts from any character's profile page.</p>
         </div>` :
-        `<div class="allcars-grid">
-          ${items.map(itemTileHTML).join('')}
-        </div>`}
+        groups.map(groupHTML).join('')}
     </div>`;
 
   // Search input
