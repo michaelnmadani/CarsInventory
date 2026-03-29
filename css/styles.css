@@ -1765,7 +1765,7 @@ input[type="color"] {
    ============================================================ */
 /* Character groups */
 .allcars-group {
-  margin-bottom: 24px;
+  margin-bottom: 8px;
 }
 .allcars-group-header {
   display: flex;
@@ -1828,6 +1828,35 @@ input[type="color"] {
 }
 .allcars-grid.collapsed {
   display: none;
+}
+.allcars-grid-small {
+  grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+  gap: 6px;
+}
+.allcars-grid-small .allcars-tile-info {
+  display: none;
+}
+.allcars-grid-small .allcars-tile-photo {
+  aspect-ratio: 1;
+  padding: 4px;
+}
+.allcars-grid-small .allcars-tile-no-photo {
+  aspect-ratio: 1;
+}
+.allcars-tile-toggle {
+  background: rgba(26, 26, 46, 0.5);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: var(--radius-sm);
+  color: rgba(240,240,245,0.7);
+  padding: 5px 7px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  transition: background 0.15s;
+}
+.allcars-tile-toggle:hover {
+  background: rgba(26, 26, 46, 0.7);
+  color: #fff;
 }
 .allcars-group-name:hover,
 .allcars-group-img:hover {
@@ -1967,6 +1996,7 @@ input[type="color"] {
 
 @media (max-width: 480px) {
   .allcars-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 8px; }
+  .allcars-grid-small { grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); gap: 4px; }
   .allcars-filters { gap: 8px; }
   .allcars-search { flex-basis: 100%; font-size: 0.82rem; }
   .allcars-select { font-size: 0.82rem; padding: 7px 28px 7px 10px; flex: 1; min-width: 0; }

@@ -1141,6 +1141,7 @@ function renderAddEdit(appEl, editId) {
 let acStatusFilter = 'all'; // all | owned | wishlist
 let acTypeFilter   = 'all'; // all | large | mini
 let acSearch       = '';
+let acTileSize     = 'small'; // small | large
 
 function renderMyCars(appEl) {
   const allChars = getAllCharacters();
@@ -1209,14 +1210,14 @@ function renderMyCars(appEl) {
     const totalCount = group.items.length;
     return `
     <div class="allcars-group">
-      <div class="allcars-group-header" data-collapse="${idx}">
+      <div class="allcars-group-header collapsed" data-collapse="${idx}">
         ${group.charImg ? `<img class="allcars-group-img" src="${esc(group.charImg)}" alt="" loading="lazy" decoding="async">` : `<div class="allcars-group-img-empty"></div>`}
         <span class="allcars-group-name">${esc(group.charName)}</span>
         <span class="allcars-group-stats">${ownedCount} owned / ${totalCount} total</span>
         <span class="allcars-group-count">${totalCount}</span>
         <svg class="allcars-group-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
       </div>
-      <div class="allcars-grid" id="allcars-grid-${idx}">
+      <div class="allcars-grid ${acTileSize === 'small' ? 'allcars-grid-small' : ''} collapsed" id="allcars-grid-${idx}">
         ${group.items.map(itemTileHTML).join('')}
       </div>
     </div>`;
@@ -1242,6 +1243,11 @@ function renderMyCars(appEl) {
           <option value="mini" ${acTypeFilter === 'mini' ? 'selected' : ''}>Mini</option>
         </select>
         <span class="allcars-count">${items.length} result${items.length !== 1 ? 's' : ''}</span>
+        <button class="allcars-tile-toggle" id="acTileSizeBtn" title="Toggle tile size">
+          ${acTileSize === 'small'
+            ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>'
+            : '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="7" rx="1"/><rect x="3" y="14" width="18" height="7" rx="1"/></svg>'}
+        </button>
       </div>
 
       ${groups.length === 0 ? `
@@ -1268,6 +1274,12 @@ function renderMyCars(appEl) {
   });
   document.getElementById('acTypeFilter').addEventListener('change', (e) => {
     acTypeFilter = e.target.value;
+    renderMyCars(appEl);
+  });
+
+  // Tile size toggle
+  document.getElementById('acTileSizeBtn').addEventListener('click', () => {
+    acTileSize = acTileSize === 'small' ? 'large' : 'small';
     renderMyCars(appEl);
   });
 
