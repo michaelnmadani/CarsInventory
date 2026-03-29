@@ -1204,15 +1204,19 @@ function renderMyCars(appEl) {
     </div>`;
   }
 
-  function groupHTML(group) {
+  function groupHTML(group, idx) {
+    const ownedCount = group.items.filter(i => i.status !== 'unpurchased').length;
+    const totalCount = group.items.length;
     return `
     <div class="allcars-group">
-      <div class="allcars-group-header" data-nav="${esc(group.carId)}">
+      <div class="allcars-group-header" data-collapse="${idx}">
         ${group.charImg ? `<img class="allcars-group-img" src="${esc(group.charImg)}" alt="" loading="lazy" decoding="async">` : `<div class="allcars-group-img-empty"></div>`}
         <span class="allcars-group-name">${esc(group.charName)}</span>
-        <span class="allcars-group-count">${group.items.length}</span>
+        <span class="allcars-group-stats">${ownedCount} owned / ${totalCount} total</span>
+        <span class="allcars-group-count">${totalCount}</span>
+        <svg class="allcars-group-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
       </div>
-      <div class="allcars-grid">
+      <div class="allcars-grid" id="allcars-grid-${idx}">
         ${group.items.map(itemTileHTML).join('')}
       </div>
     </div>`;
@@ -1246,7 +1250,7 @@ function renderMyCars(appEl) {
           <h3>No die-casts here</h3>
           <p>Add die-casts from any character's profile page.</p>
         </div>` :
-        groups.map(groupHTML).join('')}
+        groups.map((g, i) => groupHTML(g, i)).join('')}
     </div>`;
 
   // Search input
@@ -1267,9 +1271,23 @@ function renderMyCars(appEl) {
     renderMyCars(appEl);
   });
 
-  // Navigate to character bio on tile click
-  appEl.querySelectorAll('[data-nav]').forEach(el => {
-    el.addEventListener('click', () => navigate(`#/bio/${el.dataset.nav}`));
+  // Collapse / expand groups
+  appEl.querySelectorAll('[data-collapse]').forEach(el => {
+    el.addEventListener('click', () => {
+      const idx = el.dataset.collapse;
+      const grid = document.getElementById('allcars-grid-' + idx);
+      const isCollapsed = grid.classList.toggle('collapsed');
+      el.classList.toggle('collapsed', isCollapsed);
+    });
+  });
+
+  // Navigate to character bio on name click
+  appEl.querySelectorAll('.allcars-group-img, .allcars-group-img-empty, .allcars-group-name').forEach(el => {
+    el.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const carId = el.closest('[data-collapse]')?.dataset.collapse;
+      if (carId !== undefined && groups[carId]) navigate(`#/bio/${groups[carId].carId}`);
+    });
   });
 }
 
