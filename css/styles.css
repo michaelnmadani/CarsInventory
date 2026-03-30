@@ -1878,13 +1878,13 @@ input[type="color"] {
   background: rgba(255,255,255,0.93);
   border-radius: var(--radius-md);
   overflow: hidden;
-  border: 1.5px solid var(--color-border);
+  border: 3px solid #2e7d32;
   cursor: pointer;
   transition: transform var(--transition), box-shadow var(--transition);
 }
 .allcars-tile:hover { transform: translateY(-2px); box-shadow: var(--shadow-hover); }
 .allcars-tile-wish {
-  border-color: var(--color-accent);
+  border-color: #c62828;
   opacity: 0.85;
 }
 .allcars-tile-photo {
