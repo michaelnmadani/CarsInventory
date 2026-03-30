@@ -1878,7 +1878,7 @@ input[type="color"] {
   background: rgba(255,255,255,0.93);
   border-radius: var(--radius-md);
   overflow: hidden;
-  border: 3px solid #2e7d32;
+  border: 9px solid #2e7d32;
   cursor: pointer;
   transition: transform var(--transition), box-shadow var(--transition);
 }
