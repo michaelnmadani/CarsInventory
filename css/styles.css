@@ -1178,6 +1178,7 @@ input[type="color"] {
   .collection-table td { padding: 8px 8px; font-size: 0.82rem; }
 
   .login-card { padding: 32px 24px; }
+  .allcars-columns { columns: 1; }
 }
 
 @media (max-width: 480px) {
@@ -1764,8 +1765,13 @@ input[type="color"] {
    ALL CARS PAGE
    ============================================================ */
 /* Character groups */
+.allcars-columns {
+  columns: 3;
+  column-gap: 12px;
+}
 .allcars-group {
   margin-bottom: 8px;
+  break-inside: avoid;
 }
 .allcars-group-header {
   display: flex;
@@ -1997,6 +2003,7 @@ input[type="color"] {
 @media (max-width: 480px) {
   .allcars-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 8px; }
   .allcars-grid-small { grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); gap: 4px; }
+  .allcars-columns { columns: 1; }
   .allcars-filters { gap: 8px; }
   .allcars-search { flex-basis: 100%; font-size: 0.82rem; }
   .allcars-select { font-size: 0.82rem; padding: 7px 28px 7px 10px; flex: 1; min-width: 0; }

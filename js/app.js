@@ -1256,7 +1256,7 @@ function renderMyCars(appEl) {
           <h3>No die-casts here</h3>
           <p>Add die-casts from any character's profile page.</p>
         </div>` :
-        groups.map((g, i) => groupHTML(g, i)).join('')}
+        `<div class="allcars-columns">${groups.map((g, i) => groupHTML(g, i)).join('')}</div>`}
     </div>`;
 
   // Search input
@@ -1293,12 +1293,12 @@ function renderMyCars(appEl) {
     });
   });
 
-  // Navigate to character bio on name click
-  appEl.querySelectorAll('.allcars-group-img, .allcars-group-img-empty, .allcars-group-name').forEach(el => {
+  // Navigate to character bio only on image click
+  appEl.querySelectorAll('.allcars-group-img, .allcars-group-img-empty').forEach(el => {
     el.addEventListener('click', (e) => {
       e.stopPropagation();
-      const carId = el.closest('[data-collapse]')?.dataset.collapse;
-      if (carId !== undefined && groups[carId]) navigate(`#/bio/${groups[carId].carId}`);
+      const idx = el.closest('[data-collapse]')?.dataset.collapse;
+      if (idx !== undefined && groups[idx]) navigate(`#/bio/${groups[idx].carId}`);
     });
   });
 }
