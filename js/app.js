@@ -2,7 +2,7 @@ import { isLoggedIn, getAuth, clearAuth } from './auth.js';
 import { onRoute, initRouter, navigate } from './router.js';
 import { getAllCharacters, getCharacter, saveCharacter, deleteCharacter, slugify, resolveImage, resolveGallery } from './store.js';
 import { searchCars } from './search.js';
-import { getCarCount, getCarItems, addCarItem, removeCarItem, updateItemPhoto, updateItemStatus, getStats, getAllItems } from './tracker.js';
+import { getCarCount, getCarItems, addCarItem, removeCarItem, updateItemPhoto, updateItemStatus, getStats, getAllItems, cleanOrphans } from './tracker.js';
 import { compressImage, blobExtension } from './imageUtils.js';
 import { uploadImage, listImages, deleteImage as deleteRemoteImage, isSupabaseReady, listAllImages, uploadToPath } from './supabase.js';
 import { initSync } from './sync.js';
@@ -1317,5 +1317,8 @@ renderNavbar();
 
 // Load remote data before first render, then start router
 initSync().then(() => {
+  // Remove tracked items for deleted characters
+  const validIds = new Set(getAllCharacters().map(c => c.id));
+  cleanOrphans(validIds);
   initRouter();
 });

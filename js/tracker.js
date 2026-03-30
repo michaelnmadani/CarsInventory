@@ -65,6 +65,19 @@ export function getAllItems() {
   return result;
 }
 
+/** Remove collection entries whose character no longer exists */
+export function cleanOrphans(validIds) {
+  const col = getCollection();
+  let changed = false;
+  for (const carId in col) {
+    if (!validIds.has(carId)) {
+      delete col[carId];
+      changed = true;
+    }
+  }
+  if (changed) save(col);
+}
+
 /** Get all tracked items for a character */
 export function getCarItems(carId) {
   const col = getCollection();
