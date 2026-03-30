@@ -1207,14 +1207,14 @@ function renderMyCars(appEl) {
 
   function groupHTML(group, idx) {
     const ownedCount = group.items.filter(i => i.status !== 'unpurchased').length;
-    const totalCount = group.items.length;
+    const wishCount = group.items.filter(i => i.status === 'unpurchased').length;
     return `
     <div class="allcars-group">
       <div class="allcars-group-header collapsed" data-collapse="${idx}">
         ${group.charImg ? `<img class="allcars-group-img" src="${esc(group.charImg)}" alt="" loading="lazy" decoding="async">` : `<div class="allcars-group-img-empty"></div>`}
         <span class="allcars-group-name">${esc(group.charName)}</span>
-        <span class="allcars-group-stats">${ownedCount} owned / ${totalCount} total</span>
-        <span class="allcars-group-count">${totalCount}</span>
+        ${ownedCount > 0 ? `<span class="allcars-group-badge owned">${ownedCount}</span>` : ''}
+        ${wishCount > 0 ? `<span class="allcars-group-badge wish">${wishCount}</span>` : ''}
         <svg class="allcars-group-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
       </div>
       <div class="allcars-grid ${acTileSize === 'small' ? 'allcars-grid-small' : ''} collapsed" id="allcars-grid-${idx}">

@@ -1808,21 +1808,21 @@ input[type="color"] {
   color: var(--color-text-light);
   flex: 1;
 }
-.allcars-group-stats {
-  font-size: 0.75rem;
-  color: rgba(240,240,245,0.55);
-  margin-left: auto;
-  white-space: nowrap;
-}
-.allcars-group-count {
+.allcars-group-badge {
   font-size: 0.72rem;
   font-weight: 700;
-  background: var(--color-primary);
   color: #fff;
   border-radius: 99px;
   padding: 2px 8px;
   min-width: 22px;
   text-align: center;
+}
+.allcars-group-badge.owned {
+  background: #2e7d32;
+  margin-left: auto;
+}
+.allcars-group-badge.wish {
+  background: var(--color-primary);
 }
 .allcars-group-chevron {
   color: rgba(240,240,245,0.5);
