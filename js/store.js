@@ -14,14 +14,20 @@ function getOverrides() {
   catch { return {}; }
 }
 
-/** Return all characters: seed (with overrides applied) + custom */
+/** Return all characters: seed (with overrides applied) + custom (deduped) */
 export function getAllCharacters() {
   const overrides = getOverrides();
   const merged = SEED_CARS.map(c => {
     const ov = overrides[c.id];
     return ov ? { ...c, ...ov } : c;
   });
-  return [...merged, ...getCustom()];
+  const seedIds = new Set(SEED_CARS.map(c => c.id));
+  const seedNames = new Set(SEED_CARS.map(c => c.name.toLowerCase()));
+  // Filter out custom chars that now exist in seed data (by id or name)
+  const customs = getCustom().filter(c =>
+    !seedIds.has(c.id) && !seedNames.has(c.name.toLowerCase())
+  );
+  return [...merged, ...customs];
 }
 
 /** Single character by id */
