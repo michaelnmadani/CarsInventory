@@ -1248,6 +1248,12 @@ function renderMyCars(appEl) {
             ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>'
             : '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="7" rx="1"/><rect x="3" y="14" width="18" height="7" rx="1"/></svg>'}
         </button>
+        <button class="allcars-tile-toggle" id="acExpandAllBtn" title="Expand all">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="7 13 12 18 17 13"/><polyline points="7 6 12 11 17 6"/></svg>
+        </button>
+        <button class="allcars-tile-toggle" id="acCollapseAllBtn" title="Collapse all">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 11 12 6 7 11"/><polyline points="17 18 12 13 7 18"/></svg>
+        </button>
       </div>
 
       ${groups.length === 0 ? `
@@ -1281,6 +1287,22 @@ function renderMyCars(appEl) {
   document.getElementById('acTileSizeBtn').addEventListener('click', () => {
     acTileSize = acTileSize === 'small' ? 'large' : 'small';
     renderMyCars(appEl);
+  });
+
+  // Expand / collapse all
+  document.getElementById('acExpandAllBtn').addEventListener('click', () => {
+    appEl.querySelectorAll('.allcars-group-header.collapsed').forEach(h => {
+      h.classList.remove('collapsed');
+      const grid = document.getElementById('allcars-grid-' + h.dataset.collapse);
+      if (grid) grid.classList.remove('collapsed');
+    });
+  });
+  document.getElementById('acCollapseAllBtn').addEventListener('click', () => {
+    appEl.querySelectorAll('.allcars-group-header').forEach(h => {
+      h.classList.add('collapsed');
+      const grid = document.getElementById('allcars-grid-' + h.dataset.collapse);
+      if (grid) grid.classList.add('collapsed');
+    });
   });
 
   // Collapse / expand groups
