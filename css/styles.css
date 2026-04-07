@@ -994,8 +994,8 @@ input[type="color"] {
   transition: background var(--transition), transform var(--transition);
 }
 .collection-card:hover { background: var(--color-surface-alt); transform: translateY(-1px); }
-.collection-card.owned { background: #1b5e20; border-color: #2e7d32; color: #fff; }
-.collection-card.owned:hover { background: #245a27; }
+.collection-card.owned { background: rgba(27, 94, 32, 0.6); border-color: #2e7d32; color: #fff; }
+.collection-card.owned:hover { background: rgba(36, 90, 39, 0.7); }
 .collection-card.owned .collection-card-name { color: #fff; }
 .collection-card.owned .collection-card-sub { color: rgba(255,255,255,0.7); }
 .collection-card-thumb { flex-shrink: 0; }
