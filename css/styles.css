@@ -974,58 +974,57 @@ input[type="color"] {
   margin-bottom: 20px;
 }
 
-.collection-table-wrap {
-  background: var(--color-surface);
-  border-radius: var(--radius-lg);
-  border: 1.5px solid var(--color-border);
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
+.collection-grid-wrap {
   box-shadow: var(--shadow-sm);
 }
-
-.collection-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.9rem;
+.collection-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
 }
-.collection-table th {
-  background: var(--color-secondary);
-  color: var(--color-accent);
-  font-size: 0.75rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  padding: 10px 10px;
-  text-align: left;
-  white-space: nowrap;
-}
-.collection-table td {
-  padding: 10px 10px;
-  border-bottom: 1px solid var(--color-border);
-  vertical-align: middle;
-}
-.collection-table tr:last-child td { border-bottom: none; }
-.collection-table tbody tr {
-  transition: background var(--transition);
+.collection-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
+  border: 1.5px solid var(--color-border);
   cursor: pointer;
+  transition: background var(--transition), transform var(--transition);
 }
-.collection-table tbody tr:hover { background: var(--color-surface-alt); }
-.collection-table tbody tr.owned { background: var(--color-success-bg); }
-.collection-table tbody tr.owned:hover { background: #d5f5e3; }
-
-.collection-table .col-thumb {
-  width: 44px;
-}
+.collection-card:hover { background: var(--color-surface-alt); transform: translateY(-1px); }
+.collection-card.owned { background: var(--color-success-bg); border-color: #2e7d32; }
+.collection-card.owned:hover { background: #d5f5e3; }
+.collection-card-thumb { flex-shrink: 0; }
 .thumb-img {
-  width: 40px;
-  height: 30px;
+  width: 44px;
+  height: 33px;
   object-fit: contain;
   border-radius: var(--radius-sm);
   background: var(--color-surface-alt);
 }
-
-.col-number { width: 50px; font-weight: 700; color: var(--color-primary); }
-.col-count { width: 50px; text-align: center; }
+.collection-card-info { flex: 1; min-width: 0; }
+.collection-card-name {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--color-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.collection-card-sub {
+  font-size: 0.7rem;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.collection-card-counts {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
 .count-badge {
   display: inline-block;
   min-width: 24px;
@@ -1034,7 +1033,7 @@ input[type="color"] {
   border: 1px solid var(--color-border);
   border-radius: 12px;
   padding: 2px 6px;
-  font-size: 0.78rem;
+  font-size: 0.72rem;
   font-weight: 700;
 }
 .count-badge.has-items {
@@ -1170,12 +1169,8 @@ input[type="color"] {
   }
   .bio-image-wrap { max-width: 280px; }
 
-  /* Hide sponsor column on tablets */
-  .collection-table th:nth-child(4),
-  .collection-table td:nth-child(4) { display: none; }
-
-  .collection-table th { padding: 8px 8px; font-size: 0.7rem; }
-  .collection-table td { padding: 8px 8px; font-size: 0.82rem; }
+  .collection-grid { grid-template-columns: repeat(2, 1fr); }
+  .collection-card-sub { display: none; }
 
   .login-card { padding: 32px 24px; }
   .allcars-columns { columns: 1; }
@@ -1187,17 +1182,10 @@ input[type="color"] {
   .stripe-header { padding: 20px 16px; }
   .stats-grid { grid-template-columns: repeat(2, 1fr); }
 
-  /* Hide sponsor + thumb on small phones */
-  .collection-table th:nth-child(4),
-  .collection-table td:nth-child(4) { display: none; }
-  .collection-table th:nth-child(1),
-  .collection-table td:nth-child(1) { display: none; }
-
-  .collection-table th { padding: 8px 6px; font-size: 0.68rem; }
-  .collection-table td { padding: 8px 6px; font-size: 0.78rem; }
-  .col-number { width: 36px; }
-  .col-count { width: 40px; }
-  .count-badge { min-width: 20px; padding: 1px 5px; font-size: 0.72rem; }
+  .collection-grid { grid-template-columns: 1fr; }
+  .collection-card { padding: 8px 10px; }
+  .collection-card-name { font-size: 0.78rem; }
+  .count-badge { min-width: 20px; padding: 1px 5px; font-size: 0.68rem; }
 
   .collection-footer { padding: 10px 8px; gap: 10px; font-size: 0.75rem; }
 

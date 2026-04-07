@@ -919,38 +919,29 @@ function renderCollection(appEl) {
         <span class="text-muted" style="margin-left:auto;font-size:0.85rem">${stats.uniqueOwned} of ${stats.total} owned</span>
       </div>
 
-      <div class="collection-table-wrap">
-        <table class="collection-table">
-          <thead>
-            <tr>
-              <th class="col-thumb"></th>
-              <th class="col-number">#</th>
-              <th>Name</th>
-              <th>Sponsor</th>
-              <th class="col-count">Large</th>
-              <th class="col-count">Mini</th>
-            </tr>
-          </thead>
-          <tbody>
+      <div class="collection-grid-wrap">
+        <div class="collection-grid">
             ${display.map(car => {
               const cnt = getCarCount(car.id);
               const owned = cnt.large > 0 || cnt.mini > 0;
               const src = resolveImage(car);
               return `
-              <tr class="${owned ? 'owned' : ''}" data-nav="${esc(car.id)}">
-                <td class="col-thumb">
+              <div class="collection-card ${owned ? 'owned' : ''}" data-nav="${esc(car.id)}">
+                <div class="collection-card-thumb">
                   ${src ? `<img class="thumb-img" src="${esc(src)}" alt="" loading="lazy" decoding="async" onerror="this.style.display='none'">` :
                     `<div style="width:48px;height:36px;background:${esc(car.color || '#ccc')};border-radius:4px"></div>`}
-                </td>
-                <td class="col-number">${esc(car.number || 'N/A')}</td>
-                <td><strong>${esc(car.name)}</strong></td>
-                <td class="text-muted">${esc(car.sponsor || '')}</td>
-                <td class="col-count"><span class="count-badge ${cnt.large > 0 ? 'has-items' : ''}">${cnt.large}</span></td>
-                <td class="col-count"><span class="count-badge ${cnt.mini > 0 ? 'has-items' : ''}">${cnt.mini}</span></td>
-              </tr>`;
+                </div>
+                <div class="collection-card-info">
+                  <div class="collection-card-name">${esc(car.name)}</div>
+                  <div class="collection-card-sub">${car.number ? '#' + esc(car.number) : ''} ${car.sponsor ? '· ' + esc(car.sponsor) : ''}</div>
+                </div>
+                <div class="collection-card-counts">
+                  <span class="count-badge ${cnt.large > 0 ? 'has-items' : ''}" title="Large">${cnt.large}L</span>
+                  <span class="count-badge ${cnt.mini > 0 ? 'has-items' : ''}" title="Mini">${cnt.mini}M</span>
+                </div>
+              </div>`;
             }).join('')}
-          </tbody>
-        </table>
+        </div>
         <div class="collection-footer">
           <div>Total Large: <span>${stats.totalLarge}</span></div>
           <div>Total Mini: <span>${stats.totalMini}</span></div>
