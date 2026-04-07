@@ -994,8 +994,10 @@ input[type="color"] {
   transition: background var(--transition), transform var(--transition);
 }
 .collection-card:hover { background: var(--color-surface-alt); transform: translateY(-1px); }
-.collection-card.owned { background: var(--color-success-bg); border-color: #2e7d32; }
-.collection-card.owned:hover { background: #d5f5e3; }
+.collection-card.owned { background: #1b5e20; border-color: #2e7d32; color: #fff; }
+.collection-card.owned:hover { background: #245a27; }
+.collection-card.owned .collection-card-name { color: #fff; }
+.collection-card.owned .collection-card-sub { color: rgba(255,255,255,0.7); }
 .collection-card-thumb { flex-shrink: 0; }
 .thumb-img {
   width: 44px;
